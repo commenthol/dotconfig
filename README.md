@@ -7,7 +7,7 @@ Config helper to (magically) override application settings with environment vari
 Add to your project:
 
 ```
-npm i dotconfig
+npm i @commenthol/dotconfig
 ```
 
 # Usage
@@ -16,7 +16,7 @@ File: `./config.js`
 
 ```js
 import dotenv from "dotenv";
-import { getConfig } from "dotconfig";
+import { getConfig } from "@commenthol/dotconfig";
 
 // load process env vars from .env file and process env-vars
 dotenv.config();

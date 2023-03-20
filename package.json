@@ -1,6 +1,6 @@
 {
-  "name": "dotconfig",
-  "version": "0.0.1-0",
+  "name": "@commenthol/dotconfig",
+  "version": "0.1.0-0",
   "description": "Config helper to (magically) override application settings with environment variables.",
   "keywords": [
     "dotenv",
