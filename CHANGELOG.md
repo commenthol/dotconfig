@@ -2,7 +2,7 @@
 
 ### feat:
 
-- set array values (#785585d)
+- set array values (#a59556d)
 
 # 0.1.2 (2023-03-20)
 
