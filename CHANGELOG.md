@@ -1,3 +1,9 @@
+# 0.1.2 (2023-03-20)
+
+### fix:
+
+- process env with multiple overlapping keys (#3454637)
+
 # 0.1.1 (2023-03-20)
 
 ### chore:

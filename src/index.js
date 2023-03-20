@@ -10,13 +10,13 @@ const log = debug('dotconfig')
 export function getConfig (defaultConfig = {}, env = process.env) {
   const config = { ...defaultConfig }
 
-  for (let [prop, value] of Object.entries(env)) {
-    const keys = snakeCaseParts(prop)
+  for (let [envVar, value] of Object.entries(env)) {
+    const keys = snakeCaseParts(envVar)
     if (!keys?.length) {
       continue
     }
 
-    let key
+    let key = ''
     let tmp = config
     let ref = tmp
     for (let i = 0; i < keys.length; i++) {
@@ -25,7 +25,7 @@ export function getConfig (defaultConfig = {}, env = process.env) {
       const type = getType(tmp[key])
       const camelKey = snakeToCamelCase(keys.slice(i).join('_'))
       const camelType = getType(tmp[camelKey])
-      log({ prop, value, key, type, camelKey, camelType })
+      // log({ envVar, value, key, type, camelKey, camelType })
 
       if (camelType !== 'Undefined' || type === 'Undefined') {
         const currValue = tmp[camelKey]
@@ -47,7 +47,15 @@ export function getConfig (defaultConfig = {}, env = process.env) {
       tmp = tmp[key]
     }
 
-    ref[key] = value
+    const camelEnvVar = snakeToCamelCase(envVar)
+    if (getType(ref) === 'Object' && getType(ref[key]) !== 'Object') {
+      ref[key] = value
+    } else if (getType(config[camelEnvVar]) !== 'Object') {
+      config[camelEnvVar] = value
+      log('INFO: EnvVar %s is set as "%s"', envVar, camelEnvVar)
+    } else {
+      log('ERROR: EnvVar %s could not be set as "%s"', envVar, camelEnvVar)
+    }
   }
 
   return config

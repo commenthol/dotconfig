@@ -64,23 +64,26 @@ describe('config', function () {
 
   it('example', function () {
     assert.deepEqual(
-      getConfig({
-        port: 8080,
-        http: {
-          proxy: undefined
+      getConfig(
+        {
+          port: 8080,
+          http: {
+            proxy: undefined
+          },
+          sso: {
+            serverUrl: 'https://my.sso',
+            clientId: 'myClientId',
+            clientSecret: undefined
+          }
         },
-        sso: {
-          serverUrl: 'https://my.sso',
-          clientId: 'myClientId',
-          clientSecret: undefined
+        {
+          PORT: '3000',
+          HTTP_PROXY: 'my-proxy:1234',
+          SSO_SERVER_URL: 'https://other.sso/path',
+          SSO_CLIENT_SECRET: 'ƚɘɿƆɘƧ',
+          ANY_OTHER_VALUE: '1234'
         }
-      }, {
-        PORT: '3000',
-        HTTP_PROXY: 'my-proxy:1234',
-        SSO_SERVER_URL: 'https://other.sso/path',
-        SSO_CLIENT_SECRET: 'ƚɘɿƆɘƧ',
-        ANY_OTHER_VALUE: '1234'
-      }),
+      ),
       {
         http: {
           proxy: 'my-proxy:1234'
@@ -94,6 +97,31 @@ describe('config', function () {
         anyOtherValue: '1234'
       }
     )
+  })
+
+  it('shall set overlapping keys', function () {
+    assert.deepEqual(
+      getConfig({}, { TERM_PROGRAM_VERSION: '1.0', TERM: 'abc' }),
+      {
+        term: 'abc',
+        termProgramVersion: '1.0'
+      }
+    )
+  })
+
+  it('shall fail to set overlapping keys', function () {
+    assert.deepEqual(
+      getConfig({ term: {} }, { TERM_PROGRAM_VERSION: '1.0', TERM: 'abc' }),
+      {
+        term: { programVersion: '1.0' }
+      }
+    )
+  })
+
+  it('shall not throw with process.env', function () {
+    assert.doesNotThrow(() => {
+      getConfig()
+    })
   })
 
   it('shall sort multiple values into their object', function () {
