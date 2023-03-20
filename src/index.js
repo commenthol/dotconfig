@@ -48,7 +48,9 @@ export function getConfig (defaultConfig = {}, env = process.env) {
     }
 
     const camelEnvVar = snakeToCamelCase(envVar)
-    if (getType(ref) === 'Object' && getType(ref[key]) !== 'Object') {
+    if (getType(ref) === 'Array' && Number.isSafeInteger(Number(key)) && Number(key) >= 0) {
+      ref[Number(key)] = value
+    } else if (getType(ref) === 'Object' && getType(ref[key]) !== 'Object') {
       ref[key] = value
     } else if (getType(config[camelEnvVar]) !== 'Object') {
       config[camelEnvVar] = value

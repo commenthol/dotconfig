@@ -74,14 +74,18 @@ describe('config', function () {
             serverUrl: 'https://my.sso',
             clientId: 'myClientId',
             clientSecret: undefined
-          }
+          },
+          names: []
         },
         {
           PORT: '3000',
           HTTP_PROXY: 'my-proxy:1234',
           SSO_SERVER_URL: 'https://other.sso/path',
           SSO_CLIENT_SECRET: 'ƚɘɿƆɘƧ',
-          ANY_OTHER_VALUE: '1234'
+          ANY_OTHER_VALUE: '1234',
+          NAMES_0: 'Alice',
+          NAMES_1: 'Bob',
+          NAMES_2: 'Charlie'
         }
       ),
       {
@@ -94,7 +98,17 @@ describe('config', function () {
           clientSecret: 'ƚɘɿƆɘƧ',
           serverUrl: 'https://other.sso/path'
         },
+        names: ['Alice', 'Bob', 'Charlie'],
         anyOtherValue: '1234'
+      }
+    )
+  })
+
+  it('shall set array values', function () {
+    assert.deepEqual(
+      getConfig({ array: ['foo', 'bar'] }, { ARRAY_0: 'wat', ARRAY_2: 'baz' }),
+      {
+        array: ['wat', 'bar', 'baz']
       }
     )
   })

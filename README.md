@@ -1,6 +1,7 @@
 # dotconfig
 
-Config helper to (magically) override application settings with environment variables.
+Config helper to (magically) override application settings with environment
+variables.
 
 # Install
 
@@ -31,6 +32,7 @@ export const config = getConfig({
     clientId: "myClientId",
     clientSecret: undefined,
   },
+  names: [], // arrays must be defined!
 });
 ```
 
@@ -41,6 +43,9 @@ export PORT=3000
 export HTTP_PROXY=my-proxy:1234
 export SSO_SERVER_URL=https://other.sso
 export SSO_CLIENT_SECRET=ƚɘɿƆɘƧ
+export NAMES_0=Alice
+export NAMES_1=Bob
+export NAMES_2=Charlie
 export ANY_OTHER_VALUE=1234
 ```
 
@@ -57,6 +62,7 @@ const config = {
     clientId: "myClientId",
     clientSecret: "ƚɘɿƆɘƧ",
   },
+  names: ["Alice", "Bob", "Charlie"],
   anyOtherValue: "1234",
 };
 ```
