@@ -3,12 +3,12 @@ import debug from 'debug'
 const log = debug('dotconfig')
 
 /**
- * @param {Record<string, any>|{}} [defaultConfig] default configuration
+ * @param {object} [defaultConfig] default configuration
  * @param {NodeJS.ProcessEnv} [env=process.env] the environment variables
  * @returns {Record<string, any>|{}}
  */
-export function getConfig (defaultConfig = {}, env = process.env) {
-  const config = { ...defaultConfig }
+export function getConfig (defaultConfig, env = process.env) {
+  const { ...config } = defaultConfig || {}
 
   for (let [envVar, value] of Object.entries(env)) {
     const keys = snakeCaseParts(envVar)
@@ -48,9 +48,11 @@ export function getConfig (defaultConfig = {}, env = process.env) {
     }
 
     const camelEnvVar = snakeToCamelCase(envVar)
-    if (getType(ref) === 'Array' && Number.isSafeInteger(Number(key)) && Number(key) >= 0) {
-      ref[Number(key)] = value
-    } else if (getType(ref) === 'Object' && getType(ref[key]) !== 'Object') {
+    const refType = getType(ref)
+    const targetType = getType(ref[key])
+    const isArray = refType === 'Array' && Number.isSafeInteger(Number(key)) && Number(key) >= 0
+
+    if (isArray || (refType === 'Object' && targetType !== 'Object')) {
       ref[key] = value
     } else if (getType(config[camelEnvVar]) !== 'Object') {
       config[camelEnvVar] = value
@@ -76,6 +78,6 @@ const snakeCaseParts = (str) => {
   return str.split('_').map(str => str.toLowerCase())
 }
 
-const toNumber = (any) => Number.isSafeInteger(Number(any)) ? Number(any) : undefined
+const toNumber = (any) => !isNaN(Number(any)) ? Number(any) : undefined
 
 const toBoolean = (any) => any === 'true'
