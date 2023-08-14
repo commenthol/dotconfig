@@ -1,3 +1,13 @@
+# 1.0.0 (2023-08-14)
+
+### feat:
+
+- dotenv and dotconfig (#3df6fd0)
+
+### fix:
+
+- types (#11699f6)
+
 # 0.2.1 (2023-03-23)
 
 ### refactor:
