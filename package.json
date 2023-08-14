@@ -34,7 +34,7 @@
     "clean": "rimraf coverage types",
     "coverage": "c8 npm test",
     "lint": "eslint --ext .js .",
-    "test": "DEBUG=dotconfig mocha",
+    "test": "DEBUG=@commenthol/dotconfig mocha",
     "types": "tsc"
   },
   "dependencies": {
