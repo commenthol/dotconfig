@@ -35,6 +35,7 @@ export const config = dotconfig({
     clientId: 'myClientId',
     clientSecret: undefined,
   },
+  isProd: false,
   names: [], // arrays must be defined!
 })
 ```
@@ -49,6 +50,7 @@ export SSO_CLIENT_SECRET=ƚɘɿƆɘƧ
 export NAMES_0=Alice
 export NAMES_1=Bob
 export NAMES_2=Charlie
+export IS_PROD=true
 export ANY_OTHER_VALUE=1234
 # Multi line values are supported (set them in quotes!)
 export HTTPS_KEY="-----BEGIN PRIVATE KEY-----
@@ -77,6 +79,7 @@ const config = {
     clientSecret: 'ƚɘɿƆɘƧ',
   },
   names: ['Alice', 'Bob', 'Charlie'],
+  isProd: true,
   anyOtherValue: '1234',
 }
 ```
@@ -104,7 +107,7 @@ type DotenvConfigOptions = {
     encoding?: BufferEncoding | undefined;
     /**
      * Whether to override existing process environment variables. 
-     * Default is false. May be set by DOTENV_CONFIG_OVERRIDE env var.
+     * Default is false. May be set with DOTENV_CONFIG_OVERRIDE=true env var.
      */
     override?: boolean | undefined;
     /**
@@ -114,14 +117,14 @@ type DotenvConfigOptions = {
 };
 
 function dotconfig(
-  /**
-   * The default configuration object
-   */
-  defaultConfig: object, 
-  /**
-   * optional configuration options.
-   */
-  options?: DotenvConfigOptions
+    /**
+     * The default configuration object
+     */
+    defaultConfig: object, 
+    /**
+     * optional configuration options.
+     */
+    options?: DotenvConfigOptions
 ): Record<string, any> | {};
 ```
 

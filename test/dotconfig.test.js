@@ -227,7 +227,8 @@ describe('dotconfig', function () {
             clientId: 'myClientId',
             clientSecret: undefined
           },
-          names: [] // arrays must be defined!
+          names: [], // arrays must be defined!
+          isProd: false
         },
         {
           // test only to avoid using any values from process.env
@@ -250,7 +251,8 @@ describe('dotconfig', function () {
           clientId: 'myClientId',
           clientSecret: 'ƚɘɿƆɘƧ',
           serverUrl: 'https://other.sso/path'
-        }
+        },
+        isProd: true
       })
     })
 

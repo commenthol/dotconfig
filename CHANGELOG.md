@@ -1,3 +1,13 @@
+# 1.0.1 (2023-08-14)
+
+### chore:
+
+- bump dev dependencies (#1ab0c2c)
+
+### test:
+
+- add testcase with boolean variable (#013cb0e)
+
 # 1.0.0 (2023-08-14)
 
 ### feat:
