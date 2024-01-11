@@ -1,15 +1,27 @@
 import * as dotenv from './dotenv.js'
-import { log, toNumber, toBoolean } from './utils.js'
+import { log, toNumber, toBoolean, isInteger } from './utils.js'
 
 /** @typedef {import('./dotenv.js').DotenvConfigOptions} DotenvConfigOptions */
+/**
+ * @typedef {object} DotConfigOptionsExtra
+ * @property {boolean} [additionalProps=true] if `false` do not add additional props on top-level not part of defaultConfig
+ * @property {boolean} [additionalPropsAll=true] if `false` do not add any additional props that are not part of defaultConfig
+ */
+/** @typedef {DotenvConfigOptions & DotConfigOptionsExtra} DotConfigOptions */
 
 /**
  * @param {object} [defaultConfig] default configuration
  * @param {NodeJS.ProcessEnv|object} [processEnv=process.env] the environment variables
+ * @param {DotConfigOptionsExtra} [options]
  * @returns {Record<string, any>|{}}
  */
-export function getConfig (defaultConfig, processEnv = process.env) {
-  const { ...config } = defaultConfig || {}
+export function getConfig (defaultConfig, processEnv = process.env, options) {
+  const { additionalProps = true, additionalPropsAll = true } =
+    options || {}
+  const config = structuredClone(defaultConfig || {})
+  if (typeof config !== 'object' || Array.isArray(config)) {
+    throw new Error('defaultConfig must be an object')
+  }
 
   for (let [envVar, value] of Object.entries(processEnv)) {
     const keys = snakeCaseParts(envVar)
@@ -20,25 +32,42 @@ export function getConfig (defaultConfig, processEnv = process.env) {
     let key = ''
     let tmp = config
     let ref = tmp
+    let doContinue = false
     for (let i = 0; i < keys.length; i++) {
       ref = tmp
       key = keys[i]
       const type = getType(tmp[key])
       const camelKey = snakeToCamelCase(keys.slice(i).join('_'))
       const camelType = getType(tmp[camelKey])
-      // log({ envVar, value, key, type, camelKey, camelType })
 
       if (camelType !== 'Undefined' || type === 'Undefined') {
         const currValue = tmp[camelKey]
         switch (getType(currValue)) {
           case 'Number': {
-            value = toNumber(value) ?? currValue
+            const coerced = toNumber(value)
+            if (coerced === undefined) {
+              throw new TypeError(`${envVar} is not a number`)
+            }
+            value = coerced
             break
           }
           case 'Boolean': {
-            value = toBoolean(value)
+            const coerced = toBoolean(value)
+            if (coerced === undefined) {
+              throw new TypeError(`${envVar} is not a boolean`)
+            }
+            value = coerced
             break
           }
+        }
+        if (
+          (!additionalProps &&
+            tmp === config &&
+            !(camelKey in defaultConfig)) ||
+          (!additionalPropsAll && !(camelKey in tmp))
+        ) {
+          doContinue = true
+          break
         }
         key = camelKey
         break
@@ -47,13 +76,14 @@ export function getConfig (defaultConfig, processEnv = process.env) {
       tmp = tmp[key]
     }
 
+    if (doContinue) {
+      continue
+    }
+
     const camelEnvVar = snakeToCamelCase(envVar)
     const refType = getType(ref)
     const targetType = getType(ref[key])
-    const isArray =
-      refType === 'Array' &&
-      Number.isSafeInteger(Number(key)) &&
-      Number(key) >= 0
+    const isArray = refType === 'Array' && isInteger(key) && Number(key) >= 0
 
     if (isArray || (refType === 'Object' && targetType !== 'Object')) {
       ref[key] = value
@@ -72,7 +102,7 @@ export function getConfig (defaultConfig, processEnv = process.env) {
  * Generates a function comment for the given function body.
  *
  * @param {object} defaultConfig the default configuration
- * @param {DotenvConfigOptions} [options] - the options for the function
+ * @param {DotConfigOptions} [options] - the options for the function
  * @returns {Record<string, any>|{}} the result from getConfig()
  */
 export function dotconfig (defaultConfig, options) {
@@ -80,10 +110,10 @@ export function dotconfig (defaultConfig, options) {
   processEnv =
     processEnv && typeof processEnv === 'object' ? processEnv : process.env
   dotenv.config({ ...options, processEnv })
-  return getConfig(defaultConfig, processEnv)
+  return getConfig(defaultConfig, processEnv, options)
 }
 
-/* c8 ignore next 1 */
+/* c8 ignore next 2 */
 const getType = (any) =>
   toString.call(any).slice(1, -1).split(' ', 2)[1] || 'Undefined'
 

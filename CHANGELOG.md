@@ -1,12 +1,16 @@
-# 1.0.1 (2023-08-14)
+# 1.1.0 (2024-01-12)
+
+### feat:
+
+- fail if coerced type does not match default (#9505656)
 
 ### chore:
 
-- bump dev dependencies (#1ab0c2c)
+- bump devDependencies (#f5621f3)
 
 ### test:
 
-- add testcase with boolean variable (#013cb0e)
+- add testcase with boolean variable (#57d54d8)
 
 # 1.0.0 (2023-08-14)
 

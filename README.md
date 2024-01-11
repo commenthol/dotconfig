@@ -94,7 +94,7 @@ variables through getConfig().
 *Types*
 
 ```ts
-type DotenvConfigOptions = {
+type DotConfigOptions = {
     /**
      * The path to the dotenv file. Default is '.env' in the current working 
      * directory. May be set via DOTENV_CONFIG_PATH env var.
@@ -114,6 +114,14 @@ type DotenvConfigOptions = {
      * The process environment object to update. Default is `process.env`.
      */
     processEnv?: NodeJS.ProcessEnv | object;
+    /**
+     * if `false` do not add additional props on top-level not part of defaultConfig
+     */
+    additionalProps?: boolean | undefined;
+    /**
+     * if `false` do not add any additional props that are not part of defaultConfig
+     */
+    additionalPropsAll?: boolean | undefined;
 };
 
 function dotconfig(
@@ -124,7 +132,7 @@ function dotconfig(
     /**
      * optional configuration options.
      */
-    options?: DotenvConfigOptions
+    options?: DotConfigOptions
 ): Record<string, any> | {};
 ```
 

@@ -1,6 +1,6 @@
 {
   "name": "@commenthol/dotconfig",
-  "version": "1.0.1-0",
+  "version": "1.1.0-0",
   "description": "Config helper to (magically) override application settings with environment variables.",
   "keywords": [
     "dotenv",
@@ -32,7 +32,7 @@
     "changelog": "conv-changelog -o -t groups",
     "all": "npm-run-all clean lint coverage types",
     "clean": "rimraf coverage types",
-    "coverage": "c8 npm test",
+    "coverage": "c8 -r text -r html npm test",
     "lint": "eslint --ext .js .",
     "test": "DEBUG=@commenthol/dotconfig mocha",
     "types": "tsc"

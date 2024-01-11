@@ -4,6 +4,15 @@ import { fileURLToPath } from 'node:url'
 
 describe('dotconfig', function () {
   describe('getConfig', function () {
+    it('shall fail if defaultConfig is not an object', function () {
+      try {
+        getConfig(1)
+        throw new Error('failed')
+      } catch (e) {
+        assert.equal(e.message, 'defaultConfig must be an object')
+      }
+    })
+
     it('shall pass on settings', function () {
       const config = getConfig({ url: { one: 'https://one' } }, {})
       assert.deepEqual(config, {
@@ -47,11 +56,13 @@ describe('dotconfig', function () {
       })
     })
 
-    it('shall ignore wrong number values', function () {
-      const config = getConfig({ port: 3000 }, { PORT: 'NaN' })
-      assert.deepEqual(config, {
-        port: 3000
-      })
+    it('shall fail to coerce numbers', function () {
+      try {
+        getConfig({ port: 3000 }, { PORT: 'test me' })
+        throw new Error('failed')
+      } catch (e) {
+        assert.equal(e.message, 'PORT is not a number')
+      }
     })
 
     it('shall convert boolean values', function () {
@@ -62,6 +73,19 @@ describe('dotconfig', function () {
       assert.deepEqual(config, {
         is: { enabled: true }
       })
+    })
+
+    it('shall fail to coerce boolean', function () {
+      try {
+        getConfig(
+          { is: { enabled: false } },
+          { IS_ENABLED: 'not true' },
+          { strictTypes: true }
+        )
+        throw new Error('failed')
+      } catch (e) {
+        assert.equal(e.message, 'IS_ENABLED is not a boolean')
+      }
     })
 
     it('example', function () {
@@ -84,6 +108,7 @@ describe('dotconfig', function () {
             HTTP_PROXY: 'my-proxy:1234',
             SSO_SERVER_URL: 'https://other.sso/path',
             SSO_CLIENT_SECRET: 'ƚɘɿƆɘƧ',
+            SSO_REALM: 'my-realm',
             ANY_OTHER_VALUE: '1234',
             NAMES_0: 'Alice',
             NAMES_1: 'Bob',
@@ -98,10 +123,98 @@ describe('dotconfig', function () {
           sso: {
             clientId: 'myClientId',
             clientSecret: 'ƚɘɿƆɘƧ',
-            serverUrl: 'https://other.sso/path'
+            serverUrl: 'https://other.sso/path',
+            realm: 'my-realm'
           },
           names: ['Alice', 'Bob', 'Charlie'],
           anyOtherValue: '1234'
+        }
+      )
+    })
+
+    it('example (additionalProps=false)', function () {
+      assert.deepEqual(
+        getConfig(
+          {
+            port: 8080,
+            http: {
+              proxy: undefined
+            },
+            sso: {
+              serverUrl: 'https://my.sso',
+              clientId: 'myClientId',
+              clientSecret: undefined
+            },
+            names: []
+          },
+          {
+            PORT: '3000',
+            HTTP_PROXY: 'my-proxy:1234',
+            SSO_SERVER_URL: 'https://other.sso/path',
+            SSO_CLIENT_SECRET: 'ƚɘɿƆɘƧ',
+            SSO_REALM: 'my-realm',
+            ANY_OTHER_VALUE: '1234',
+            NAMES_0: 'Alice',
+            NAMES_1: 'Bob',
+            NAMES_2: 'Charlie'
+          },
+          { additionalProps: false }
+        ),
+        {
+          http: {
+            proxy: 'my-proxy:1234'
+          },
+          port: 3000,
+          sso: {
+            clientId: 'myClientId',
+            clientSecret: 'ƚɘɿƆɘƧ',
+            serverUrl: 'https://other.sso/path',
+            realm: 'my-realm'
+          },
+          names: ['Alice', 'Bob', 'Charlie']
+        }
+      )
+    })
+
+    it('example (additionalPropsAll=false)', function () {
+      assert.deepEqual(
+        getConfig(
+          {
+            port: 8080,
+            http: {
+              proxy: undefined
+            },
+            sso: {
+              serverUrl: 'https://my.sso',
+              clientId: 'myClientId',
+              clientSecret: undefined
+            },
+            names: ['a', 'b']
+          },
+          {
+            PORT: '3000',
+            HTTP_PROXY: 'my-proxy:1234',
+            SSO_SERVER_URL: 'https://other.sso/path',
+            SSO_CLIENT_SECRET: 'ƚɘɿƆɘƧ',
+            SSO_REALM: 'my-realm',
+            ANY_OTHER_VALUE: '1234',
+            NAMES_0: 'Alice',
+            NAMES_1: 'Bob',
+            NAMES_2: 'Charlie'
+          },
+          { additionalPropsAll: false }
+        ),
+        {
+          http: {
+            proxy: 'my-proxy:1234'
+          },
+          port: 3000,
+          sso: {
+            clientId: 'myClientId',
+            clientSecret: 'ƚɘɿƆɘƧ',
+            serverUrl: 'https://other.sso/path'
+          },
+          names: ['Alice', 'Bob']
         }
       )
     })
