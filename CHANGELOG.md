@@ -2,7 +2,7 @@
 
 ### feat:
 
-- fail if coerced type does not match default (#9505656)
+- fail if coerced type does not match default (#4e8b686)
 
 ### chore:
 
