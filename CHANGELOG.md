@@ -1,3 +1,13 @@
+# 1.1.1 (2024-02-01)
+
+### fix:
+
+- set values on camel cased keys (#9466b2f)
+
+### chore:
+
+- bump dependencies (#bae9f9f)
+
 # 1.1.0 (2024-01-12)
 
 ### feat:
