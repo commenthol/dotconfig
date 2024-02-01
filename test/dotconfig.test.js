@@ -44,6 +44,26 @@ describe('dotconfig', function () {
       })
     })
 
+    it('shall sort in env var on existing camelCased key', function () {
+      const config = getConfig(
+        { url: {}, urlOne: { three: 1 } },
+        {
+          URL_ONE_one: 'https://one.one',
+          URL_TWO: 'https://two',
+          url_one_three: '3'
+        }
+      )
+      assert.deepEqual(config, {
+        urlOne: {
+          one: 'https://one.one',
+          three: 3
+        },
+        url: {
+          two: 'https://two'
+        }
+      })
+    })
+
     it('shall ignore values which start with a Dash', function () {
       const config = getConfig({}, { __Url_One: 'https://one' })
       assert.deepEqual(config, {})

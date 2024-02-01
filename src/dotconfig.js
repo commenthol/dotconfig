@@ -33,11 +33,28 @@ export function getConfig (defaultConfig, processEnv = process.env, options) {
     let tmp = config
     let ref = tmp
     let doContinue = false
+
     for (let i = 0; i < keys.length; i++) {
       ref = tmp
+
+      let camelKey
+      for (let j = keys.length; j > i; j--) {
+        const _camelKey = snakeToCamelCase(keys.slice(i, j).join('_'))
+        const type = getType(tmp[_camelKey])
+        if (type === 'Object') {
+          i = j - 1
+          camelKey = _camelKey
+          break
+        }
+      }
+      if (camelKey) {
+        tmp = tmp[camelKey]
+        continue
+      }
+
       key = keys[i]
       const type = getType(tmp[key])
-      const camelKey = snakeToCamelCase(keys.slice(i).join('_'))
+      camelKey = snakeToCamelCase(keys.slice(i).join('_'))
       const camelType = getType(tmp[camelKey])
 
       if (camelType !== 'Undefined' || type === 'Undefined') {
@@ -85,7 +102,7 @@ export function getConfig (defaultConfig, processEnv = process.env, options) {
     const targetType = getType(ref[key])
     const isArray = refType === 'Array' && isInteger(key) && Number(key) >= 0
 
-    if (isArray || (refType === 'Object' && targetType !== 'Object')) {
+    if (key && (isArray || (refType === 'Object' && targetType !== 'Object'))) {
       ref[key] = value
     } else if (getType(config[camelEnvVar]) !== 'Object') {
       config[camelEnvVar] = value
