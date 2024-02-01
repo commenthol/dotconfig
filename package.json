@@ -41,8 +41,8 @@
     "debug": "^4.3.4"
   },
   "devDependencies": {
-    "@types/node": "^20.11.0",
-    "c8": "^8.0.1",
+    "@types/node": "^20.11.16",
+    "c8": "^9.1.0",
     "conv-changelog": "^1.0.0",
     "eslint": "^8.56.0",
     "eslint-config-standard": "^17.1.0",
@@ -50,7 +50,7 @@
     "eslint-plugin-n": "^16.6.2",
     "eslint-plugin-promise": "^6.1.1",
     "mocha": "^10.2.0",
-    "npm-run-all2": "^6.1.1",
+    "npm-run-all2": "^6.1.2",
     "rimraf": "^5.0.5",
     "typescript": "^5.3.3"
   },
