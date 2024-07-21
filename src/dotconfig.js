@@ -15,9 +15,8 @@ import { log, toNumber, toBoolean, isInteger } from './utils.js'
  * @param {DotConfigOptionsExtra} [options]
  * @returns {Record<string, any>|{}}
  */
-export function getConfig (defaultConfig, processEnv = process.env, options) {
-  const { additionalProps = true, additionalPropsAll = true } =
-    options || {}
+export function getConfig(defaultConfig, processEnv = process.env, options) {
+  const { additionalProps = true, additionalPropsAll = true } = options || {}
   const config = structuredClone(defaultConfig || {})
   if (typeof config !== 'object' || Array.isArray(config)) {
     throw new Error('defaultConfig must be an object')
@@ -122,7 +121,7 @@ export function getConfig (defaultConfig, processEnv = process.env, options) {
  * @param {DotConfigOptions} [options] - the options for the function
  * @returns {Record<string, any>|{}} the result from getConfig()
  */
-export function dotconfig (defaultConfig, options) {
+export function dotconfig(defaultConfig, options) {
   let { processEnv } = options || {}
   processEnv =
     processEnv && typeof processEnv === 'object' ? processEnv : process.env

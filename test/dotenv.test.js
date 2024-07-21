@@ -21,7 +21,7 @@ describe('dotenv', function () {
     })
 
     it('should handle values with special characters properly', () => {
-      const result = parse("SPECIAL='This is a \"special\" value'\n")
+      const result = parse('SPECIAL=\'This is a "special" value\'\n')
       assert.deepStrictEqual(result, { SPECIAL: 'This is a "special" value' })
     })
 
@@ -44,9 +44,9 @@ describe('dotenv', function () {
     })
 
     it('should handle values enclosed in backticks', () => {
-      const content = "NAME=`John M' Doe\"`\n"
+      const content = 'NAME=`John M\' Doe"`\n'
       const result = parse(content)
-      assert.deepStrictEqual(result, { NAME: "John M' Doe\"" })
+      assert.deepStrictEqual(result, { NAME: 'John M\' Doe"' })
     })
 
     it('considers in line comments', () => {
@@ -65,7 +65,8 @@ describe('dotenv', function () {
     })
 
     it('should parse content with key-value pairs', function () {
-      const content = '# Comments\nexport KEY1=value1\nexport KEY2="value2"\nexport KEY3=\'value3\'\nexport KEY4="multi-line\n      value4"'
+      const content =
+        '# Comments\nexport KEY1=value1\nexport KEY2="value2"\nexport KEY3=\'value3\'\nexport KEY4="multi-line\n      value4"'
       const result = parse(content)
       assert.deepStrictEqual(result, {
         KEY1: 'value1',
@@ -76,7 +77,8 @@ describe('dotenv', function () {
     })
 
     it('should parse content with empty lines and comments', function () {
-      const content = '\n      # Comments\n\nexport KEY1=value1\n\nexport KEY2="value2"\n\nexport KEY3=\'value3\''
+      const content =
+        '\n      # Comments\n\nexport KEY1=value1\n\nexport KEY2="value2"\n\nexport KEY3=\'value3\''
       const result = parse(content)
       assert.deepStrictEqual(result, {
         KEY1: 'value1',
@@ -86,7 +88,8 @@ describe('dotenv', function () {
     })
 
     it('should parse content with multi-line values', function () {
-      const content = 'export KEY1="multi-line\n  value1"\nexport KEY2=\'multi-line\n  value2\'\nKEY3=\'"value3\'\'\nKEY4="value4"'
+      const content =
+        'export KEY1="multi-line\n  value1"\nexport KEY2=\'multi-line\n  value2\'\nKEY3=\'"value3\'\'\nKEY4="value4"'
       const expected = {
         KEY1: 'multi-line\n  value1',
         KEY2: 'multi-line\n  value2',
@@ -122,21 +125,23 @@ describe('dotenv', function () {
         path: new URL('./.env', import.meta.url),
         processEnv
       })
-      assert.deepStrictEqual(
-        parsed,
-        {
-          KEY: 'value',
-          KEY_QUOTES_DOUBLE: 'value in double quotes',
-          KEY_QUOTES_SINGLE: 'value in single quotes',
-          KEY_BACKTICKS: 'value in backticks',
-          KEY_QUOTES_DOUBLE_COMMENT: "value in 'double' quotes `and` a line comment",
-          KEY_QUOTES_SINGLE_COMMENT: 'value in "single" quotes `and` a line comment',
-          KEY_BACKTICKS_COMMENT: 'value in \'backticks\' "and" a line comment',
-          KEY_QUOTES_DOUBLE_MULTILINE: "value\n  over \n  'some' # this is not a comment\n  lines",
-          KEY_QUOTES_SINGLE_MULTILINE: 'value\n  over \n  "some" # this is not a comment\n  lines',
-          KEY_BACKTICKS_MULTILINE: 'value\n  over \n  "some" # this is not a comment\n  lines'
-        }
-      )
+      assert.deepStrictEqual(parsed, {
+        KEY: 'value',
+        KEY_QUOTES_DOUBLE: 'value in double quotes',
+        KEY_QUOTES_SINGLE: 'value in single quotes',
+        KEY_BACKTICKS: 'value in backticks',
+        KEY_QUOTES_DOUBLE_COMMENT:
+          "value in 'double' quotes `and` a line comment",
+        KEY_QUOTES_SINGLE_COMMENT:
+          'value in "single" quotes `and` a line comment',
+        KEY_BACKTICKS_COMMENT: 'value in \'backticks\' "and" a line comment',
+        KEY_QUOTES_DOUBLE_MULTILINE:
+          "value\n  over \n  'some' # this is not a comment\n  lines",
+        KEY_QUOTES_SINGLE_MULTILINE:
+          'value\n  over \n  "some" # this is not a comment\n  lines',
+        KEY_BACKTICKS_MULTILINE:
+          'value\n  over \n  "some" # this is not a comment\n  lines'
+      })
       assert.equal(processEnv.KEY, 'do not override')
     })
 
@@ -152,12 +157,17 @@ describe('dotenv', function () {
         KEY_QUOTES_DOUBLE: 'value in double quotes',
         KEY_QUOTES_SINGLE: 'value in single quotes',
         KEY_BACKTICKS: 'value in backticks',
-        KEY_QUOTES_DOUBLE_COMMENT: "value in 'double' quotes `and` a line comment",
-        KEY_QUOTES_SINGLE_COMMENT: 'value in "single" quotes `and` a line comment',
+        KEY_QUOTES_DOUBLE_COMMENT:
+          "value in 'double' quotes `and` a line comment",
+        KEY_QUOTES_SINGLE_COMMENT:
+          'value in "single" quotes `and` a line comment',
         KEY_BACKTICKS_COMMENT: 'value in \'backticks\' "and" a line comment',
-        KEY_QUOTES_DOUBLE_MULTILINE: "value\n  over \n  'some' # this is not a comment\n  lines",
-        KEY_QUOTES_SINGLE_MULTILINE: 'value\n  over \n  "some" # this is not a comment\n  lines',
-        KEY_BACKTICKS_MULTILINE: 'value\n  over \n  "some" # this is not a comment\n  lines'
+        KEY_QUOTES_DOUBLE_MULTILINE:
+          "value\n  over \n  'some' # this is not a comment\n  lines",
+        KEY_QUOTES_SINGLE_MULTILINE:
+          'value\n  over \n  "some" # this is not a comment\n  lines',
+        KEY_BACKTICKS_MULTILINE:
+          'value\n  over \n  "some" # this is not a comment\n  lines'
       })
       assert.strictEqual(process.env.KEY, 'value')
       process.env = originalEnv
