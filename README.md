@@ -37,6 +37,10 @@ export const config = dotconfig({
   },
   isProd: false,
   names: [], // arrays must be defined!
+  user: { 
+    __group: true // groups env vars into object
+                  // Here env-var MUST have min 3 parts with min 2 dashes!
+  }
 })
 ```
 
@@ -50,6 +54,10 @@ export SSO_CLIENT_SECRET=ƚɘɿƆɘƧ
 export NAMES_0=Alice
 export NAMES_1=Bob
 export NAMES_2=Charlie
+export USER_0_USERNAME=Alice
+export USER_0_PASSWORD="correct horse battery staple"
+export USER_1_USERNAME=Bob
+export USER_1_PASSWORD=ʇǝɹɔǝs
 export IS_PROD=true
 export ANY_OTHER_VALUE=1234
 # Multi line values are supported (set them in quotes!)
@@ -79,6 +87,16 @@ const config = {
     clientSecret: 'ƚɘɿƆɘƧ',
   },
   names: ['Alice', 'Bob', 'Charlie'],
+  user: {
+    0: {
+      username: 'Alice',
+      password: 'correct horse battery staple'
+    },
+    1: {
+      username: 'Bob',
+      password: 'ʇǝɹɔǝs'
+    }
+  },
   isProd: true,
   anyOtherValue: '1234',
 }
@@ -88,12 +106,23 @@ const config = {
 
 ## dotconfig 
 
-dotconfig calls dotenv.config() first before passing the parsed process.env
-variables through getConfig().
+dotconfig calls `dotenv.config()` first before passing the parsed `process.env`
+variables through `getConfig()`.
 
 *Types*
 
 ```ts
+function dotconfig(
+    /**
+     * The default configuration object
+     */
+    defaultConfig: object, 
+    /**
+     * optional configuration options.
+     */
+    options?: DotConfigOptions
+): Record<string, any> | {};
+
 type DotConfigOptions = {
     /**
      * The path to the dotenv file. Default is '.env' in the current working 
@@ -123,24 +152,13 @@ type DotConfigOptions = {
      */
     additionalPropsAll?: boolean | undefined;
 };
-
-function dotconfig(
-    /**
-     * The default configuration object
-     */
-    defaultConfig: object, 
-    /**
-     * optional configuration options.
-     */
-    options?: DotConfigOptions
-): Record<string, any> | {};
 ```
 
 ## dotenv 
 
-dotenv comes with two methods parse() and config(). 
+dotenv comes with two methods `parse()` and `config()`. 
 
-config() returns the parsed .env file (if found).
+`dotenv.config()` returns the parsed `.env` file (if found).
 
 *Usage*
 
@@ -170,7 +188,7 @@ function config (
 
 ## getConfig
 
-Applies the lower camel-cased process.env variables onto the default
+Applies the lower camel-cased `process.env` variables onto the default
 configuration.
 
 *Usage*
@@ -185,10 +203,10 @@ const config = getConfig({
   http: { port: 80 },
   https: { port: 443 }
 })
-// config = {
-//  http: { port: 8080 },
-//  https: { port: 8443 }
-// }
+//> config = {
+//>  http: { port: 8080 },
+//>  https: { port: 8443 }
+//> }
 ```
 
 # License

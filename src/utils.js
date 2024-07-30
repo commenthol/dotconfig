@@ -1,5 +1,9 @@
 import debug from 'debug'
 
+/**
+ * @param {any} any
+ * @returns {number|undefined}
+ */
 export const toNumber = (any) =>
   typeof any === 'string'
     ? !isNaN(Number(any))
@@ -9,8 +13,16 @@ export const toNumber = (any) =>
       ? any
       : undefined
 
+/**
+ * @param {any} any
+ * @returns {boolean}
+ */
 export const isInteger = (any) => Number.isSafeInteger(toNumber(any))
 
+/**
+ * @param {any} any
+ * @returns {boolean|undefined}
+ */
 export const toBoolean = (any) =>
   any === 'true'
     ? true

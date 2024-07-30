@@ -1,6 +1,8 @@
 import * as dotenv from './dotenv.js'
 import { log, toNumber, toBoolean, isInteger } from './utils.js'
 
+const GROUP = '__group'
+
 /** @typedef {import('./dotenv.js').DotenvConfigOptions} DotenvConfigOptions */
 /**
  * @typedef {object} DotConfigOptionsExtra
@@ -21,6 +23,7 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
   if (typeof config !== 'object' || Array.isArray(config)) {
     throw new Error('defaultConfig must be an object')
   }
+  const refsWithGroup = new Set()
 
   for (let [envVar, value] of Object.entries(processEnv)) {
     const keys = snakeCaseParts(envVar)
@@ -38,6 +41,13 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
 
       let camelKey
       for (let j = keys.length; j > i; j--) {
+        const needGrouping = tmp?.[GROUP]
+        if (needGrouping) {
+          refsWithGroup.add(tmp)
+          camelKey = keys[i]
+          tmp[camelKey] = tmp[camelKey] ?? {}
+          break
+        }
         const _camelKey = snakeToCamelCase(keys.slice(i, j).join('_'))
         const type = getType(tmp[_camelKey])
         if (type === 'Object') {
@@ -109,6 +119,10 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
     } else {
       log('ERROR: EnvVar %s could not be set as "%s"', envVar, camelEnvVar)
     }
+  }
+
+  for (const ref of refsWithGroup) {
+    Reflect.deleteProperty(ref, GROUP)
   }
 
   return config
