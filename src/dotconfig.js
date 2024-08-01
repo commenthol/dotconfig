@@ -1,6 +1,8 @@
 import * as dotenv from './dotenv.js'
 import { log, toNumber, toBoolean, isInteger } from './utils.js'
 
+const GROUP = '__group'
+
 /** @typedef {import('./dotenv.js').DotenvConfigOptions} DotenvConfigOptions */
 /**
  * @typedef {object} DotConfigOptionsExtra
@@ -15,13 +17,14 @@ import { log, toNumber, toBoolean, isInteger } from './utils.js'
  * @param {DotConfigOptionsExtra} [options]
  * @returns {Record<string, any>|{}}
  */
-export function getConfig (defaultConfig, processEnv = process.env, options) {
-  const { additionalProps = true, additionalPropsAll = true } =
-    options || {}
+export function getConfig(defaultConfig, processEnv = process.env, options) {
+  const { additionalProps = true, additionalPropsAll = true } = options || {}
   const config = structuredClone(defaultConfig || {})
   if (typeof config !== 'object' || Array.isArray(config)) {
     throw new Error('defaultConfig must be an object')
   }
+  const refsWithGroup = new Set()
+  const refsWithArray = new Map()
 
   for (let [envVar, value] of Object.entries(processEnv)) {
     const keys = snakeCaseParts(envVar)
@@ -39,6 +42,13 @@ export function getConfig (defaultConfig, processEnv = process.env, options) {
 
       let camelKey
       for (let j = keys.length; j > i; j--) {
+        const needGrouping = tmp?.[GROUP]
+        if (needGrouping) {
+          refsWithGroup.add(tmp)
+          camelKey = keys[i]
+          tmp[camelKey] = tmp[camelKey] ?? {}
+          break
+        }
         const _camelKey = snakeToCamelCase(keys.slice(i, j).join('_'))
         const type = getType(tmp[_camelKey])
         if (type === 'Object') {
@@ -102,7 +112,13 @@ export function getConfig (defaultConfig, processEnv = process.env, options) {
     const targetType = getType(ref[key])
     const isArray = refType === 'Array' && isInteger(key) && Number(key) >= 0
 
-    if (key && (isArray || (refType === 'Object' && targetType !== 'Object'))) {
+    if (key && isArray) {
+      refsWithArray.set(ref, {
+        ...ref,
+        ...refsWithArray.get(ref),
+        [key]: value
+      })
+    } else if (key && refType === 'Object' && targetType !== 'Object') {
       ref[key] = value
     } else if (getType(config[camelEnvVar]) !== 'Object') {
       config[camelEnvVar] = value
@@ -110,6 +126,18 @@ export function getConfig (defaultConfig, processEnv = process.env, options) {
     } else {
       log('ERROR: EnvVar %s could not be set as "%s"', envVar, camelEnvVar)
     }
+  }
+
+  for (const [ref, obj] of refsWithArray) {
+    const sorted = Object.keys(obj).sort()
+    let i = 0
+    for (const k of sorted) {
+      ref[i++] = obj[k]
+    }
+  }
+
+  for (const ref of refsWithGroup) {
+    Reflect.deleteProperty(ref, GROUP)
   }
 
   return config
@@ -122,7 +150,7 @@ export function getConfig (defaultConfig, processEnv = process.env, options) {
  * @param {DotConfigOptions} [options] - the options for the function
  * @returns {Record<string, any>|{}} the result from getConfig()
  */
-export function dotconfig (defaultConfig, options) {
+export function dotconfig(defaultConfig, options) {
   let { processEnv } = options || {}
   processEnv =
     processEnv && typeof processEnv === 'object' ? processEnv : process.env

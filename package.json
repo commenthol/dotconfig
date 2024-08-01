@@ -33,26 +33,25 @@
     "all": "npm-run-all clean lint coverage types",
     "clean": "rimraf coverage types",
     "coverage": "c8 -r text -r html npm test",
-    "lint": "eslint --ext .js .",
+    "lint": "eslint",
     "test": "DEBUG=@commenthol/dotconfig mocha",
     "types": "tsc"
   },
   "dependencies": {
-    "debug": "^4.3.4"
+    "debug": "^4.3.5"
   },
   "devDependencies": {
-    "@types/node": "^20.11.16",
-    "c8": "^9.1.0",
+    "@types/node": "^20.14.11",
+    "c8": "^10.1.2",
     "conv-changelog": "^1.0.0",
-    "eslint": "^8.56.0",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-promise": "^6.1.1",
-    "mocha": "^10.2.0",
-    "npm-run-all2": "^6.1.2",
-    "rimraf": "^5.0.5",
-    "typescript": "^5.3.3"
+    "eslint": "^9.7.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^15.8.0",
+    "mocha": "^10.7.0",
+    "npm-run-all2": "^6.2.2",
+    "rimraf": "^6.0.1",
+    "typescript": "^5.5.3"
   },
   "engines": {
     "node": ">=18"

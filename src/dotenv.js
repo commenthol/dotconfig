@@ -19,7 +19,7 @@ const QUOTES = /['"`]/
  * @param {DotenvConfigOptions} [options] Optional parameters for configuring the dotenv file.
  * @return {object|undefined} An object containing the parsed dotenv file data.
  */
-export function config (options = {}) {
+export function config(options = {}) {
   let { path, encoding, override, processEnv } = options || {}
 
   const { DOTENV_CONFIG_ENCODING, DOTENV_CONFIG_PATH, DOTENV_CONFIG_OVERRIDE } =
@@ -61,7 +61,7 @@ export function config (options = {}) {
  * @param {string} content The content to parse.
  * @return {object} An object containing the extracted key-value pairs.
  */
-export function parse (content) {
+export function parse(content) {
   const env = {}
 
   let key

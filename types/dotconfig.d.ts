@@ -20,7 +20,7 @@ export function getConfig(defaultConfig?: object, processEnv?: NodeJS.ProcessEnv
  * @returns {Record<string, any>|{}} the result from getConfig()
  */
 export function dotconfig(defaultConfig: object, options?: DotConfigOptions | undefined): Record<string, any> | {};
-export type DotenvConfigOptions = import('./dotenv.js').DotenvConfigOptions;
+export type DotenvConfigOptions = import("./dotenv.js").DotenvConfigOptions;
 export type DotConfigOptionsExtra = {
     /**
      * if `false` do not add additional props on top-level not part of defaultConfig

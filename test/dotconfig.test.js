@@ -69,6 +69,34 @@ describe('dotconfig', function () {
       assert.deepEqual(config, {})
     })
 
+    it('shall set array values', function () {
+      assert.deepEqual(
+        getConfig(
+          { array: ['foo', 'bar'] },
+          { ARRAY_0: 'wat', ARRAY_2: 'baz', ARRAY_4: 'four' }
+        ),
+        {
+          array: ['wat', 'bar', 'baz', 'four']
+        }
+      )
+    })
+
+    it('shall set nested array values', function () {
+      assert.deepEqual(
+        getConfig(
+          { nested: { array: ['foo', 'bar'] } },
+          {
+            NESTED_ARRAY_0: 'wat',
+            NESTED_ARRAY_2: 'baz',
+            NESTED_ARRAY_4: 'four'
+          }
+        ),
+        {
+          nested: { array: ['wat', 'bar', 'baz', 'four'] }
+        }
+      )
+    })
+
     it('shall convert number values', function () {
       const config = getConfig({ port: 3000 }, { PORT: '3333' })
       assert.deepEqual(config, {
@@ -108,6 +136,51 @@ describe('dotconfig', function () {
       }
     })
 
+    it('shall group env vars by number into object', function () {
+      const config = getConfig(
+        {
+          user: { __group: true }
+        },
+        {
+          user_0_username: 'alice',
+          user_0_password: 'alice-pwd',
+          user_1_username: 'bob'
+        }
+      )
+      assert.deepEqual(config, {
+        user: {
+          0: { username: 'alice', password: 'alice-pwd' },
+          1: { username: 'bob' }
+        }
+      })
+    })
+
+    it('shall group env vars by name into object', function () {
+      const config = getConfig(
+        {
+          url: { __group: true }
+        },
+        {
+          URL_ONE_ONE: 'http://one',
+          URL_ONE_TWO: 'http://one.two',
+          URL_two: 'http://two', // can't add this into a group as field is missing for group
+          url_two_three: 'http://two.three'
+        }
+      )
+      assert.deepEqual(config, {
+        url: {
+          one: {
+            one: 'http://one',
+            two: 'http://one.two'
+          },
+          two: {
+            three: 'http://two.three'
+          }
+        },
+        urlTwo: 'http://two'
+      })
+    })
+
     it('example', function () {
       assert.deepEqual(
         getConfig(
@@ -121,7 +194,8 @@ describe('dotconfig', function () {
               clientId: 'myClientId',
               clientSecret: undefined
             },
-            names: []
+            names: [],
+            user: { __group: true }
           },
           {
             PORT: '3000',
@@ -132,7 +206,11 @@ describe('dotconfig', function () {
             ANY_OTHER_VALUE: '1234',
             NAMES_0: 'Alice',
             NAMES_1: 'Bob',
-            NAMES_2: 'Charlie'
+            NAMES_2: 'Charlie',
+            USER_0_USERNAME: 'Alice',
+            USER_0_PASSWORD: 'correct horse battery staple',
+            USER_1_USERNAME: 'Bob',
+            USER_1_PASSWORD: 'ʇǝɹɔǝs'
           }
         ),
         {
@@ -146,8 +224,18 @@ describe('dotconfig', function () {
             serverUrl: 'https://other.sso/path',
             realm: 'my-realm'
           },
+          anyOtherValue: '1234',
           names: ['Alice', 'Bob', 'Charlie'],
-          anyOtherValue: '1234'
+          user: {
+            0: {
+              username: 'Alice',
+              password: 'correct horse battery staple'
+            },
+            1: {
+              username: 'Bob',
+              password: 'ʇǝɹɔǝs'
+            }
+          }
         }
       )
     })
@@ -235,18 +323,6 @@ describe('dotconfig', function () {
             serverUrl: 'https://other.sso/path'
           },
           names: ['Alice', 'Bob']
-        }
-      )
-    })
-
-    it('shall set array values', function () {
-      assert.deepEqual(
-        getConfig(
-          { array: ['foo', 'bar'] },
-          { ARRAY_0: 'wat', ARRAY_2: 'baz' }
-        ),
-        {
-          array: ['wat', 'bar', 'baz']
         }
       )
     })
