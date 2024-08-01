@@ -1,3 +1,17 @@
+# 1.2.0 (2024-08-01)
+
+### feat:
+
+- group env variables into nested object (#81652af)
+
+### fix:
+
+- rearrange array values (#17ac86b)
+
+### chore:
+
+- bump dependencies (#174a34a)
+
 # 1.1.1 (2024-02-01)
 
 ### fix:
