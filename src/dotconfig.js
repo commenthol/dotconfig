@@ -24,6 +24,7 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
     throw new Error('defaultConfig must be an object')
   }
   const refsWithGroup = new Set()
+  const refsWithArray = new Map()
 
   for (let [envVar, value] of Object.entries(processEnv)) {
     const keys = snakeCaseParts(envVar)
@@ -111,13 +112,27 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
     const targetType = getType(ref[key])
     const isArray = refType === 'Array' && isInteger(key) && Number(key) >= 0
 
-    if (key && (isArray || (refType === 'Object' && targetType !== 'Object'))) {
+    if (key && isArray) {
+      refsWithArray.set(ref, {
+        ...ref,
+        ...refsWithArray.get(ref),
+        [key]: value
+      })
+    } else if (key && refType === 'Object' && targetType !== 'Object') {
       ref[key] = value
     } else if (getType(config[camelEnvVar]) !== 'Object') {
       config[camelEnvVar] = value
       log('INFO: EnvVar %s is set as "%s"', envVar, camelEnvVar)
     } else {
       log('ERROR: EnvVar %s could not be set as "%s"', envVar, camelEnvVar)
+    }
+  }
+
+  for (const [ref, obj] of refsWithArray) {
+    const sorted = Object.keys(obj).sort()
+    let i = 0
+    for (const k of sorted) {
+      ref[i++] = obj[k]
     }
   }
 

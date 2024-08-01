@@ -69,6 +69,34 @@ describe('dotconfig', function () {
       assert.deepEqual(config, {})
     })
 
+    it('shall set array values', function () {
+      assert.deepEqual(
+        getConfig(
+          { array: ['foo', 'bar'] },
+          { ARRAY_0: 'wat', ARRAY_2: 'baz', ARRAY_4: 'four' }
+        ),
+        {
+          array: ['wat', 'bar', 'baz', 'four']
+        }
+      )
+    })
+
+    it('shall set nested array values', function () {
+      assert.deepEqual(
+        getConfig(
+          { nested: { array: ['foo', 'bar'] } },
+          {
+            NESTED_ARRAY_0: 'wat',
+            NESTED_ARRAY_2: 'baz',
+            NESTED_ARRAY_4: 'four'
+          }
+        ),
+        {
+          nested: { array: ['wat', 'bar', 'baz', 'four'] }
+        }
+      )
+    })
+
     it('shall convert number values', function () {
       const config = getConfig({ port: 3000 }, { PORT: '3333' })
       assert.deepEqual(config, {
@@ -295,18 +323,6 @@ describe('dotconfig', function () {
             serverUrl: 'https://other.sso/path'
           },
           names: ['Alice', 'Bob']
-        }
-      )
-    })
-
-    it('shall set array values', function () {
-      assert.deepEqual(
-        getConfig(
-          { array: ['foo', 'bar'] },
-          { ARRAY_0: 'wat', ARRAY_2: 'baz', ARRAY_4: 'four' }
-        ),
-        {
-          array: ['wat', 'bar', 'baz', , 'four']
         }
       )
     })
