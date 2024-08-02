@@ -51,7 +51,7 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
         }
         const _camelKey = snakeToCamelCase(keys.slice(i, j).join('_'))
         const type = getType(tmp[_camelKey])
-        if (type === 'Object') {
+        if (['Object', 'Array'].includes(type)) {
           i = j - 1
           camelKey = _camelKey
           break

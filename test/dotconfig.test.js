@@ -81,10 +81,10 @@ describe('dotconfig', function () {
       )
     })
 
-    it('shall set nested array values', function () {
+    it('shall set array values on camelCased key', function () {
       assert.deepEqual(
         getConfig(
-          { nested: { array: ['foo', 'bar'] } },
+          { nestedArray: ['foo', 'bar'] },
           {
             NESTED_ARRAY_0: 'wat',
             NESTED_ARRAY_2: 'baz',
@@ -92,7 +92,7 @@ describe('dotconfig', function () {
           }
         ),
         {
-          nested: { array: ['wat', 'bar', 'baz', 'four'] }
+          nestedArray: ['wat', 'bar', 'baz', 'four']
         }
       )
     })
