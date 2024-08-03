@@ -1,3 +1,9 @@
+# 1.2.1 (2024-08-02)
+
+### fix:
+
+- issue with arrays on camelCased keys (#4f688c2)
+
 # 1.2.0 (2024-08-01)
 
 ### feat:
