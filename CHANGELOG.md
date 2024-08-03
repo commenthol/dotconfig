@@ -1,3 +1,9 @@
+# 1.3.0 (2024-08-03)
+
+### feat:
+
+- load file contents with file:// (#ce5ffd1)
+
 # 1.2.1 (2024-08-02)
 
 ### fix:
