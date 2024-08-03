@@ -40,7 +40,8 @@ export const config = dotconfig({
   user: { 
     __group: true // groups env vars into object
                   // Here env-var MUST have min 3 parts with min 2 dashes!
-  }
+  },
+  loadFile: ''
 })
 ```
 
@@ -67,6 +68,8 @@ MIIE...
 export HTTPS_CERT='-----BEGIN CERTIFICATE-----
 MIID...
 -----END CERTIFICATE-----'
+# loads content from file relative: `file://./relative` absolute: `file:///absolute`
+export LOAD_FILE='file://./cert.key'
 ```
 
 results in `config` being exported as
@@ -99,6 +102,8 @@ const config = {
   },
   isProd: true,
   anyOtherValue: '1234',
+  // the content from `LOAD_FILE`
+  loadFile: '-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----'
 }
 ```
 

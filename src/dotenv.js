@@ -1,4 +1,4 @@
-import * as fs from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { log, toBoolean } from './utils.js'
@@ -27,11 +27,8 @@ export function config(options = {}) {
 
   path =
     DOTENV_CONFIG_PATH ||
-    (path === undefined
-      ? resolve(process.cwd(), '.env')
-      : path instanceof URL
-        ? fileURLToPath(path)
-        : path)
+    (!path ? '.env' : path instanceof URL ? fileURLToPath(path) : path)
+  path = resolve(process.cwd(), path)
   encoding = /** @type {BufferEncoding} */ (
     DOTENV_CONFIG_ENCODING || encoding || 'utf-8'
   )
@@ -40,7 +37,7 @@ export function config(options = {}) {
     processEnv && typeof processEnv === 'object' ? processEnv : process.env
 
   try {
-    const content = fs.readFileSync(path, { encoding })
+    const content = readFileSync(path, { encoding })
     const parsed = parse(content.toString())
 
     for (const [key, value] of Object.entries(parsed)) {
