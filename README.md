@@ -1,3 +1,7 @@
+[![npm badge][npm-badge]][npm]
+![types badge][types-badge]
+![monthly downloads badge][npm-dm]
+
 # dotconfig
 
 Config helper to (magically) override application settings with environment
@@ -41,7 +45,8 @@ export const config = dotconfig({
     __group: true // groups env vars into object
                   // Here env-var MUST have min 3 parts with min 2 dashes!
   },
-  loadFile: ''
+  // if loading from file default config var must contain at least `file://`
+  loadFile: 'file://'
 })
 ```
 
@@ -242,3 +247,10 @@ const config = getConfig({
 # License
 
 MIT licensed
+
+
+[npm-badge]: https://badgen.net/npm/v/@commenthol/dotconfig
+[npm]: https://www.npmjs.com/package/@commenthol/dotconfig
+[npm-dm]: https://badgen.net/npm/dm/@commenthol/dotconfig
+[types-badge]: https://badgen.net/npm/types/@commenthol/dotconfig
+

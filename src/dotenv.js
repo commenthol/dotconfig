@@ -1,7 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { log, toBoolean } from './utils.js'
+import { log, toBoolean, resolveFilename } from './utils.js'
 
 const QUOTES = /['"`]/
 
@@ -20,15 +18,12 @@ const QUOTES = /['"`]/
  * @return {object|undefined} An object containing the parsed dotenv file data.
  */
 export function config(options = {}) {
-  let { path, encoding, override, processEnv } = options || {}
+  let { path: _path, encoding, override, processEnv } = options || {}
 
   const { DOTENV_CONFIG_ENCODING, DOTENV_CONFIG_PATH, DOTENV_CONFIG_OVERRIDE } =
     process.env
 
-  path =
-    DOTENV_CONFIG_PATH ||
-    (!path ? '.env' : path instanceof URL ? fileURLToPath(path) : path)
-  path = resolve(process.cwd(), path)
+  const path = resolveFilename(DOTENV_CONFIG_PATH || (!_path ? '.env' : _path))
   encoding = /** @type {BufferEncoding} */ (
     DOTENV_CONFIG_ENCODING || encoding || 'utf-8'
   )
@@ -36,17 +31,27 @@ export function config(options = {}) {
   processEnv =
     processEnv && typeof processEnv === 'object' ? processEnv : process.env
 
+  const parsed = parseDotenvFile(path, { encoding }) || {}
+
+  for (const [key, value] of Object.entries(parsed)) {
+    if (override || processEnv[key] === undefined) {
+      processEnv[key] = value
+    }
+  }
+
+  return { parsed }
+}
+
+/**
+ * @param {string} path
+ * @param {{ encoding?: BufferEncoding }} [options]
+ * @returns {Record<string,string>|undefined}
+ */
+export function parseDotenvFile(path, options) {
+  const { encoding } = options || {}
   try {
     const content = readFileSync(path, { encoding })
-    const parsed = parse(content.toString())
-
-    for (const [key, value] of Object.entries(parsed)) {
-      if (override || processEnv[key] === undefined) {
-        processEnv[key] = value
-      }
-    }
-
-    return parsed
+    return parse(content.toString())
   } catch (/** @type {Error|any} */ err) {
     log(`ERROR: Failed to load ${path} with ${err.message}`)
   }

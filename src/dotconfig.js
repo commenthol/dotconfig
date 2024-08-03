@@ -1,7 +1,12 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import * as dotenv from './dotenv.js'
-import { log, toNumber, toBoolean, isInteger } from './utils.js'
+import {
+  log,
+  toNumber,
+  toBoolean,
+  isInteger,
+  isFile,
+  tryLoadingFile
+} from './utils.js'
 
 const GROUP = '__group'
 
@@ -25,6 +30,7 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
   if (typeof config !== 'object' || Array.isArray(config)) {
     throw new Error('defaultConfig must be an object')
   }
+
   const refsWithGroup = new Set()
   const refsWithArray = new Map()
 
@@ -70,10 +76,12 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
       const camelType = getType(tmp[camelKey])
 
       if (camelType !== 'Undefined' || type === 'Undefined') {
-        const currValue = tmp[camelKey]
-        switch (getType(currValue)) {
+        const defaultValue = tmp[camelKey]
+        switch (getType(defaultValue)) {
           case 'String': {
-            value = tryLoadingFile(value)
+            if (isFile(defaultValue)) {
+              value = tryLoadingFile(value)
+            }
             break
           }
           case 'Number': {
@@ -164,7 +172,6 @@ export function dotconfig(defaultConfig, options) {
   return getConfig(defaultConfig, processEnv, options)
 }
 
-/* c8 ignore next 2 */
 const getType = (any) =>
   toString.call(any).slice(1, -1).split(' ', 2)[1] || 'Undefined'
 
@@ -176,24 +183,4 @@ const snakeCaseParts = (str) => {
     return
   }
   return str.split('_').map((str) => str.toLowerCase())
-}
-
-const FILE_URI = 'file://'
-
-/**
- * loads content from file if value starts with `file://`
- * @param {any} possibleFile
- * @returns {any}
- */
-const tryLoadingFile = (possibleFile) => {
-  if (typeof possibleFile !== 'string' || !possibleFile.startsWith(FILE_URI)) {
-    return possibleFile
-  }
-  const filename = resolve(process.cwd(), possibleFile.slice(FILE_URI.length))
-  try {
-    return readFileSync(filename, 'utf-8')
-  } catch (/** @type {Error|any} */ err) {
-    log(`ERROR: Failed to load ${filename} with ${err.message}`)
-    return possibleFile
-  }
 }

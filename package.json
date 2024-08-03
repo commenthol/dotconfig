@@ -30,9 +30,9 @@
   ],
   "scripts": {
     "changelog": "conv-changelog -o -t groups",
-    "all": "npm-run-all clean lint coverage types",
+    "all": "npm-run-all clean lint c8 types",
     "clean": "rimraf coverage types",
-    "coverage": "c8 -r text -r html npm test",
+    "c8": "c8 -r text -r html npm test",
     "lint": "eslint",
     "test": "DEBUG=@commenthol/dotconfig mocha",
     "types": "tsc"

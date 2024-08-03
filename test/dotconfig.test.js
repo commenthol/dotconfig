@@ -195,7 +195,10 @@ describe('dotconfig', function () {
               clientSecret: undefined
             },
             names: [],
-            user: { __group: true }
+            user: { __group: true },
+            // defaultVar must have `file://` to prevent accidential sideloading
+            // of unwanted file
+            loadFile: 'file://'
           },
           {
             PORT: '3000',
@@ -210,7 +213,8 @@ describe('dotconfig', function () {
             USER_0_USERNAME: 'Alice',
             USER_0_PASSWORD: 'correct horse battery staple',
             USER_1_USERNAME: 'Bob',
-            USER_1_PASSWORD: 'ʇǝɹɔǝs'
+            USER_1_PASSWORD: 'ʇǝɹɔǝs',
+            LOAD_FILE: 'file://./test/test.txt'
           }
         ),
         {
@@ -235,7 +239,8 @@ describe('dotconfig', function () {
               username: 'Bob',
               password: 'ʇǝɹɔǝs'
             }
-          }
+          },
+          loadFile: 'This is loaded from file\n'
         }
       )
     })
@@ -425,7 +430,21 @@ describe('dotconfig', function () {
       )
     })
 
-    it('shall fail to auto load file', function () {
+    it('shall not auto load file if file:// is missing in defaultVar', function () {
+      assert.deepEqual(
+        getConfig(
+          { file: '' },
+          {
+            FILE: 'file://./test/test.txt'
+          }
+        ),
+        {
+          file: 'file://./test/test.txt'
+        }
+      )
+    })
+
+    it('shall fail to auto load file if not exists', function () {
       assert.deepEqual(
         getConfig(
           { file: 'file://' },

@@ -13,6 +13,14 @@
  */
 export function config(options?: DotenvConfigOptions | undefined): object | undefined;
 /**
+ * @param {string} path
+ * @param {{ encoding?: BufferEncoding }} [options]
+ * @returns {Record<string,string>|undefined}
+ */
+export function parseDotenvFile(path: string, options?: {
+    encoding?: BufferEncoding;
+} | undefined): Record<string, string> | undefined;
+/**
  * Parses the content and extracts key-value pairs into an object.
  *
  * @param {string} content The content to parse.

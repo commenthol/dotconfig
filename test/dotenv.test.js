@@ -121,7 +121,7 @@ describe('dotenv', function () {
   describe('config', function () {
     it('shall parse .env file', function () {
       const processEnv = { KEY: 'do not override' }
-      const parsed = config({
+      const { parsed } = config({
         path: new URL('./.env', import.meta.url),
         processEnv
       })
@@ -148,7 +148,7 @@ describe('dotenv', function () {
     it('should override existing process environment variables', function () {
       const originalEnv = process.env
       process.env.KEY = 'originalValue'
-      const parsed = config({
+      const { parsed } = config({
         path: new URL('./.env', import.meta.url),
         override: true
       })
