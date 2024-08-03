@@ -114,7 +114,8 @@ const config = {
 dotconfig calls `dotenv.config()` first before passing the parsed `process.env`
 variables through `getConfig()`.
 
-*Types*
+<details>
+<summary><i>Types</i></summary>
 
 ```ts
 function dotconfig(
@@ -159,6 +160,8 @@ type DotConfigOptions = {
 };
 ```
 
+</details>
+
 ## dotenv 
 
 dotenv comes with two methods `parse()` and `config()`. 
@@ -179,7 +182,8 @@ dotenv.config({
 })
 ```
 
-*Types*
+<details>
+<summary><i>Types</i></summary>
 
 ```ts
 function config (
@@ -189,7 +193,28 @@ function config (
    */
   options?: DotenvConfigOptions
 ): Record<string, any> | {};
+
+type DotenvConfigOptions = {
+    /**
+     * The path to the dotenv file. Default is '.env' in the current working directory. May be set via DOTENV_CONFIG_PATH env var.
+     */
+    path?: string | URL | undefined;
+    /**
+     * The encoding of the dotenv file. May be set via DOTENV_CONFIG_ENCODING env var.
+     */
+    encoding?: BufferEncoding | undefined;
+    /**
+     * Whether to override existing process environment variables. Default is false. May be set by DOTENV_CONFIG_OVERRIDE env var.
+     */
+    override?: boolean | undefined;
+    /**
+     * The process environment object to update. Default is `process.env`.
+     */
+    processEnv?: NodeJS.ProcessEnv | object;
+};
 ```
+
+</details>
 
 ## getConfig
 
