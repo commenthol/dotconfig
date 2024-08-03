@@ -1,3 +1,13 @@
+# 1.3.1 (2024-08-03)
+
+### fix:
+
+- prevent accidential sideloading of files via env-vars (#35f908f)
+
+### docs:
+
+- hide types (#ab7eaa2)
+
 # 1.3.0 (2024-08-03)
 
 ### feat:
