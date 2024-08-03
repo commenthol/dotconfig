@@ -410,6 +410,34 @@ describe('dotconfig', function () {
         }
       })
     })
+
+    it('shall auto load file', function () {
+      assert.deepEqual(
+        getConfig(
+          { file: 'file://' },
+          {
+            FILE: 'file://./test/test.txt'
+          }
+        ),
+        {
+          file: 'This is loaded from file\n'
+        }
+      )
+    })
+
+    it('shall fail to auto load file', function () {
+      assert.deepEqual(
+        getConfig(
+          { file: 'file://' },
+          {
+            FILE: 'file://./test/not-there.txt'
+          }
+        ),
+        {
+          file: 'file://./test/not-there.txt'
+        }
+      )
+    })
   })
 
   describe('dotconfig', function () {

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import * as dotenv from './dotenv.js'
 import { log, toNumber, toBoolean, isInteger } from './utils.js'
 
@@ -70,6 +72,10 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
       if (camelType !== 'Undefined' || type === 'Undefined') {
         const currValue = tmp[camelKey]
         switch (getType(currValue)) {
+          case 'String': {
+            value = tryLoadingFile(value)
+            break
+          }
           case 'Number': {
             const coerced = toNumber(value)
             if (coerced === undefined) {
@@ -170,4 +176,24 @@ const snakeCaseParts = (str) => {
     return
   }
   return str.split('_').map((str) => str.toLowerCase())
+}
+
+const FILE_URI = 'file://'
+
+/**
+ * loads content from file if value starts with `file://`
+ * @param {any} possibleFile
+ * @returns {any}
+ */
+const tryLoadingFile = (possibleFile) => {
+  if (typeof possibleFile !== 'string' || !possibleFile.startsWith(FILE_URI)) {
+    return possibleFile
+  }
+  const filename = resolve(process.cwd(), possibleFile.slice(FILE_URI.length))
+  try {
+    return readFileSync(filename, 'utf-8')
+  } catch (/** @type {Error|any} */ err) {
+    log(`ERROR: Failed to load ${filename} with ${err.message}`)
+    return possibleFile
+  }
 }
