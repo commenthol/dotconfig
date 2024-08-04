@@ -172,5 +172,47 @@ describe('dotenv', function () {
       assert.strictEqual(process.env.KEY, 'value')
       process.env = originalEnv
     })
+
+    it('shall parse .env-enc file with encrypted values', function () {
+      const DOTENV_PUBLIC_KEY =
+        '03d599cf2e4febf5e149ab727132117314a640e560f0d5c2395742e8219e9dbeee'
+      const HELLO =
+        'encrypted:BOyGm1Oug6X4b+Sy0sWOz+vqXrwwrP00j56asdYJhHW87Hij+fZSua3Mx3tF+3Vo9z8MQNcOVBvXApjyUYmYy2nu/mFnoVxq3ehoA4f+hu2hw7i8Y8BMwtJ2/j7+PtP1nThQ6YCw'
+
+      const processEnv = { KEY: 'do not override' }
+      const { parsed, privateKeys } = config({
+        path: new URL('./.env-enc', import.meta.url),
+        processEnv
+      })
+      assert.deepStrictEqual(parsed, {
+        KEY: 'value',
+        'DOTENV_PUBLIC_KEY_DEVELOPMENT-ENC': DOTENV_PUBLIC_KEY,
+        HELLO
+      })
+      assert.deepStrictEqual(processEnv, {
+        KEY: 'do not override',
+        'DOTENV_PUBLIC_KEY_DEVELOPMENT-ENC': DOTENV_PUBLIC_KEY,
+        HELLO
+      })
+      assert.deepEqual(privateKeys, [
+        '1a0c83d2a349d756f6f78f0c150e258dc67f8cc54acb77e4f8b47c67950caffa'
+      ])
+    })
+
+    it('shall fail to parse .enc-enc file with non existing keys file', function () {
+      try {
+        const processEnv = { DOTENV_PRIVATE_KEYS_PATH: 'not there' }
+        config({
+          path: new URL('./.env-enc', import.meta.url),
+          processEnv
+        })
+        throw new Error()
+      } catch (err) {
+        assert.equal(
+          err.message,
+          'No private keys for DOTENV_PUBLIC_KEY* found'
+        )
+      }
+    })
   })
 })

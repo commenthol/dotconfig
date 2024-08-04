@@ -9,6 +9,9 @@ variables.
 
 Comes packaged with a dotenv file loader.
 
+Works with [dotenvx][] encrypted .env files and its .env.keys file. Uses same
+[secp256k1](https://en.bitcoin.it/wiki/Secp256k1) encryption.
+
 # Install
 
 Add to your project:
@@ -46,7 +49,7 @@ export const config = dotconfig({
                   // Here env-var MUST have min 3 parts with min 2 dashes!
   },
   // if loading from file default config var must contain at least `file://`
-  loadFile: 'file://'
+  loadFile: 'file://',
 })
 ```
 
@@ -75,6 +78,9 @@ MIID...
 -----END CERTIFICATE-----'
 # loads content from file relative: `file://./relative` absolute: `file:///absolute`
 export LOAD_FILE='file://./cert.key'
+# use encrypted values together with a .env.keys file containing DOTENV_PRIVATE_KEY
+DOTENV_PUBLIC_KEY="03d599cf2e4febf5e149ab727132117314a640e560f0d5c2395742e8219e9dbeee"
+HELLO="encrypted:BOyGm1Oug6X4b+...wtJ2/j7+PtP1nThQ6YCw"
 ```
 
 results in `config` being exported as
@@ -108,9 +114,29 @@ const config = {
   isProd: true,
   anyOtherValue: '1234',
   // the content from `LOAD_FILE`
-  loadFile: '-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----'
+  loadFile: '-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----',
+  // decrypted values nor private keys show up process.env object
+  hello: 'world'
 }
 ```
+
+# Encryption
+
+Uses [dotenvx](https://dotenvx.com/docs/env-keys-file#encryption) for handling
+value encryption. Install globally or in your project.
+
+```
+npm install -g @dotenvx/dotenvx
+```
+
+NOTE: Never commit your `.env.keys` file. Keep it in a save place.
+
+To use a different `.env.keys` file you may use DOTENV_PRIVATE_KEYS_PATH
+env-var.
+
+Decrypted values only appear in the config object but never in `process.env`.
+Private keys are also only used internally for decryption and are deleted if
+they appear in `process.env`.
 
 # API 
 
@@ -254,3 +280,4 @@ MIT licensed
 [npm-dm]: https://badgen.net/npm/dm/@commenthol/dotconfig
 [types-badge]: https://badgen.net/npm/types/@commenthol/dotconfig
 
+[dotenvx]: https://github.com/dotenvx/dotenvx

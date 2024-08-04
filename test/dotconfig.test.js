@@ -214,7 +214,16 @@ describe('dotconfig', function () {
             USER_0_PASSWORD: 'correct horse battery staple',
             USER_1_USERNAME: 'Bob',
             USER_1_PASSWORD: 'ʇǝɹɔǝs',
-            LOAD_FILE: 'file://./test/test.txt'
+            LOAD_FILE: 'file://./test/test.txt',
+            DOTENV_PUBLIC_KEY:
+              '03d599cf2e4febf5e149ab727132117314a640e560f0d5c2395742e8219e9dbeee',
+            HELLO:
+              'encrypted:BOyGm1Oug6X4b+Sy0sWOz+vqXrwwrP00j56asdYJhHW87Hij+fZSua3Mx3tF+3Vo9z8MQNcOVBvXApjyUYmYy2nu/mFnoVxq3ehoA4f+hu2hw7i8Y8BMwtJ2/j7+PtP1nThQ6YCw'
+          },
+          {
+            privateKeys: [
+              '1a0c83d2a349d756f6f78f0c150e258dc67f8cc54acb77e4f8b47c67950caffa'
+            ]
           }
         ),
         {
@@ -240,7 +249,8 @@ describe('dotconfig', function () {
               password: 'ʇǝɹɔǝs'
             }
           },
-          loadFile: 'This is loaded from file\n'
+          loadFile: 'This is loaded from file\n',
+          hello: 'world'
         }
       )
     })
@@ -454,6 +464,74 @@ describe('dotconfig', function () {
         ),
         {
           file: 'file://./test/not-there.txt'
+        }
+      )
+    })
+
+    it('shall decrypt encrypted value', function () {
+      assert.deepEqual(
+        getConfig(
+          {},
+          {
+            DOTENV_PUBLIC_KEY:
+              '03d599cf2e4febf5e149ab727132117314a640e560f0d5c2395742e8219e9dbeee',
+            HELLO:
+              'encrypted:BOyGm1Oug6X4b+Sy0sWOz+vqXrwwrP00j56asdYJhHW87Hij+fZSua3Mx3tF+3Vo9z8MQNcOVBvXApjyUYmYy2nu/mFnoVxq3ehoA4f+hu2hw7i8Y8BMwtJ2/j7+PtP1nThQ6YCw'
+          },
+          {
+            privateKeys: [
+              '1a0c83d2a349d756f6f78f0c150e258dc67f8cc54acb77e4f8b47c67950caffa'
+            ]
+          }
+        ),
+        {
+          hello: 'world'
+        }
+      )
+    })
+
+    it('shall fail to decrypt encrypted value on wrong private key', function () {
+      try {
+        getConfig(
+          {},
+          {
+            DOTENV_PUBLIC_KEY:
+              '03d599cf2e4febf5e149ab727132117314a640e560f0d5c2395742e8219e9dbeee',
+            HELLO:
+              'encrypted:BOyGm1Oug6X4b+Sy0sWOz+vqXrwwrP00j56asdYJhHW87Hij+fZSua3Mx3tF+3Vo9z8MQNcOVBvXApjyUYmYy2nu/mFnoVxq3ehoA4f+hu2hw7i8Y8BMwtJ2/j7+PtP1nThQ6YCw'
+          },
+          {
+            privateKeys: [
+              '2a0c83d2a349d756f6f78f0c150e258dc67f8cc54acb77e4f8b47c67950caffa'
+            ]
+          }
+        )
+        throw new Error()
+      } catch (err) {
+        assert.equal(err.message, 'Decryption failed for HELLO')
+      }
+    })
+
+    it('shall not throw decrypting encrypted value on wrong private key with throwOnDecryptionError=false', function () {
+      assert.deepEqual(
+        getConfig(
+          {},
+          {
+            DOTENV_PUBLIC_KEY:
+              '03d599cf2e4febf5e149ab727132117314a640e560f0d5c2395742e8219e9dbeee',
+            HELLO:
+              'encrypted:BOyGm1Oug6X4b+Sy0sWOz+vqXrwwrP00j56asdYJhHW87Hij+fZSua3Mx3tF+3Vo9z8MQNcOVBvXApjyUYmYy2nu/mFnoVxq3ehoA4f+hu2hw7i8Y8BMwtJ2/j7+PtP1nThQ6YCw'
+          },
+          {
+            privateKeys: [
+              '2a0c83d2a349d756f6f78f0c150e258dc67f8cc54acb77e4f8b47c67950caffa'
+            ],
+            throwOnDecryptionError: false
+          }
+        ),
+        {
+          hello:
+            'encrypted:BOyGm1Oug6X4b+Sy0sWOz+vqXrwwrP00j56asdYJhHW87Hij+fZSua3Mx3tF+3Vo9z8MQNcOVBvXApjyUYmYy2nu/mFnoVxq3ehoA4f+hu2hw7i8Y8BMwtJ2/j7+PtP1nThQ6YCw'
         }
       )
     })

@@ -1,5 +1,7 @@
 import { readFileSync } from 'node:fs'
+import { resolve, dirname } from 'node:path'
 import { log, toBoolean, resolveFilename } from './utils.js'
+import { getPrivateKeys, hasPublicKey } from './crypt.js'
 
 const QUOTES = /['"`]/
 
@@ -39,7 +41,26 @@ export function config(options = {}) {
     }
   }
 
-  return { parsed }
+  let privateKeys
+
+  if (hasPublicKey(processEnv)) {
+    const privateKeyFilename = resolveFilename(
+      process.env.DOTENV_PRIVATE_KEYS_PATH ||
+        processEnv.DOTENV_PRIVATE_KEYS_PATH ||
+        // dotenvx default vault
+        resolve(dirname(path), '.env.keys')
+    )
+
+    Reflect.deleteProperty(process.env, 'DOTENV_PRIVATE_KEYS_PATH')
+
+    const parsedKeyEnvVars = parseDotenvFile(privateKeyFilename, { encoding })
+    if (!parsedKeyEnvVars) {
+      throw new Error('No private keys for DOTENV_PUBLIC_KEY* found')
+    }
+    privateKeys = getPrivateKeys(parsedKeyEnvVars)
+  }
+
+  return { parsed, privateKeys }
 }
 
 /**

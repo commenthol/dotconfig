@@ -7,6 +7,7 @@ import {
   isFile,
   tryLoadingFile
 } from './utils.js'
+import { decryptValue, DOTENV_PUBLIC_KEY } from './crypt.js'
 
 const GROUP = '__group'
 
@@ -15,6 +16,8 @@ const GROUP = '__group'
  * @typedef {object} DotConfigOptionsExtra
  * @property {boolean} [additionalProps=true] if `false` do not add additional props on top-level not part of defaultConfig
  * @property {boolean} [additionalPropsAll=true] if `false` do not add any additional props that are not part of defaultConfig
+ * @property {string[]} [privateKeys] list of private keys for decryption encrypted values
+ * @property {boolean} [throwOnDecryptionError=true] Throw on decryption error
  */
 /** @typedef {DotenvConfigOptions & DotConfigOptionsExtra} DotConfigOptions */
 
@@ -25,7 +28,12 @@ const GROUP = '__group'
  * @returns {Record<string, any>|{}}
  */
 export function getConfig(defaultConfig, processEnv = process.env, options) {
-  const { additionalProps = true, additionalPropsAll = true } = options || {}
+  const {
+    additionalProps = true,
+    additionalPropsAll = true,
+    privateKeys,
+    throwOnDecryptionError = true
+  } = options || {}
   const config = structuredClone(defaultConfig || {})
   if (typeof config !== 'object' || Array.isArray(config)) {
     throw new Error('defaultConfig must be an object')
@@ -35,6 +43,10 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
   const refsWithArray = new Map()
 
   for (let [envVar, value] of Object.entries(processEnv)) {
+    if (envVar.startsWith(DOTENV_PUBLIC_KEY)) {
+      continue
+    }
+
     const keys = snakeCaseParts(envVar)
     if (!keys?.length) {
       continue
@@ -126,6 +138,10 @@ export function getConfig(defaultConfig, processEnv = process.env, options) {
     const targetType = getType(ref[key])
     const isArray = refType === 'Array' && isInteger(key) && Number(key) >= 0
 
+    if (getType(value) === 'String') {
+      value = decryptValue(envVar, value, privateKeys, throwOnDecryptionError)
+    }
+
     if (key && isArray) {
       refsWithArray.set(ref, {
         ...ref,
@@ -168,8 +184,8 @@ export function dotconfig(defaultConfig, options) {
   let { processEnv } = options || {}
   processEnv =
     processEnv && typeof processEnv === 'object' ? processEnv : process.env
-  dotenv.config({ ...options, processEnv })
-  return getConfig(defaultConfig, processEnv, options)
+  const { privateKeys } = dotenv.config({ ...options, processEnv })
+  return getConfig(defaultConfig, processEnv, { ...options, privateKeys })
 }
 
 const getType = (any) =>

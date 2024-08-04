@@ -9,7 +9,8 @@
     "environment",
     "variables",
     "config",
-    "settings"
+    "settings",
+    "decryption"
   ],
   "homepage": "https://github.com/commenthol/dotconfig#readme",
   "bugs": {
@@ -23,35 +24,36 @@
   "author": "commenthol <commenthol@gmail.com>",
   "type": "module",
   "main": "src/index.js",
-  "types": "types",
+  "types": "./types/index.d.ts",
   "files": [
     "src",
     "types"
   ],
   "scripts": {
-    "changelog": "conv-changelog -o -t groups",
     "all": "npm-run-all clean lint c8 types",
-    "clean": "rimraf coverage types",
     "c8": "c8 -r text -r html npm test",
+    "changelog": "conv-changelog -o -t groups",
+    "clean": "rimraf coverage types",
     "lint": "eslint",
     "test": "DEBUG=@commenthol/dotconfig mocha",
     "types": "tsc"
   },
   "dependencies": {
-    "debug": "^4.3.5"
+    "debug": "^4.3.6",
+    "eciesjs": "^0.4.7"
   },
   "devDependencies": {
-    "@types/node": "^20.14.11",
+    "@types/node": "^20.14.14",
     "c8": "^10.1.2",
     "conv-changelog": "^1.0.0",
-    "eslint": "^9.7.0",
-    "eslint-plugin-prettier": "^5.2.1",
+    "eslint": "^9.8.0",
     "eslint-config-prettier": "^9.1.0",
-    "globals": "^15.8.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "globals": "^15.9.0",
     "mocha": "^10.7.0",
     "npm-run-all2": "^6.2.2",
     "rimraf": "^6.0.1",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.4"
   },
   "engines": {
     "node": ">=18"
