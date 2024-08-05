@@ -4,7 +4,7 @@
  * @property {boolean} [additionalProps=true] if `false` do not add additional props on top-level not part of defaultConfig
  * @property {boolean} [additionalPropsAll=true] if `false` do not add any additional props that are not part of defaultConfig
  * @property {string[]} [privateKeys] list of private keys for decryption encrypted values
- * @property {boolean} [throwOnDecryptionError=true] Throw on decryption error
+ * @property {boolean} [throwOnDecryptionError=true] default=true; Throw on decryption error
  */
 /** @typedef {DotenvConfigOptions & DotConfigOptionsExtra} DotConfigOptions */
 /**
@@ -37,7 +37,7 @@ export type DotConfigOptionsExtra = {
      */
     privateKeys?: string[] | undefined;
     /**
-     * Throw on decryption error
+     * default=true; Throw on decryption error
      */
     throwOnDecryptionError?: boolean | undefined;
 };

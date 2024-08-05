@@ -115,7 +115,7 @@ const config = {
   anyOtherValue: '1234',
   // the content from `LOAD_FILE`
   loadFile: '-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----',
-  // decrypted values nor private keys show up process.env object
+  // decrypted values nor private keys show up in `process.env` object
   hello: 'world'
 }
 ```
@@ -188,6 +188,10 @@ type DotConfigOptions = {
      * if `false` do not add any additional props that are not part of defaultConfig
      */
     additionalPropsAll?: boolean | undefined;
+    /**
+     * default=true; Throw on decryption error
+     */
+    throwOnDecryptionError?: boolean | undefined;
 };
 ```
 

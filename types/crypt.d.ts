@@ -35,4 +35,3 @@ export function getPrivateKeys(processEnv: NodeJS.ProcessEnv, doDelete?: boolean
  */
 export function hasPublicKey(processEnv: Record<string, string>): boolean;
 export const DOTENV_PUBLIC_KEY: "DOTENV_PUBLIC_KEY";
-export const DOTENV_PRIVATE_KEY: "DOTENV_PRIVATE_KEY";
