@@ -3,7 +3,7 @@ import { log, tryLoadingFile } from './utils.js'
 
 export const DOTENV_PUBLIC_KEY = 'DOTENV_PUBLIC_KEY'
 const DOTENV_PRIVATE_KEY = 'DOTENV_PRIVATE_KEY'
-const PREFIX = 'encrypted:'
+export const PREFIX = 'encrypted:'
 
 /**
  * @param {any} value
@@ -61,7 +61,7 @@ export function decryptValue(
 }
 
 /**
- * @param {string} existingPrivateKey
+ * @param {string} [existingPrivateKey]
  * @returns {{
  *  publicKey: string
  *  privateKey: string
@@ -114,14 +114,13 @@ export function getPrivateKeys(processEnv, doDelete = true) {
 }
 
 /**
- * @param {Record<string,string>} processEnv
- * @returns {boolean}
+ * @param {Record<string,string|boolean|number>} processEnv
+ * @returns {{key: string, value: string}|undefined}
  */
-export function hasPublicKey(processEnv) {
-  for (const envVar of Object.keys(processEnv || {})) {
-    if (envVar.startsWith(DOTENV_PUBLIC_KEY)) {
-      return true
+export function getFirstPublicKey(processEnv) {
+  for (const [key, value] of Object.entries(processEnv || {})) {
+    if (key.startsWith(DOTENV_PUBLIC_KEY)) {
+      return { key, value: '' + value }
     }
   }
-  return false
 }

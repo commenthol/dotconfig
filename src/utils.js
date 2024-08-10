@@ -1,7 +1,7 @@
 import debug from 'debug'
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { readFileSync } from 'fs'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
 /**
  * @param {any} any
@@ -79,3 +79,10 @@ export const tryLoadingFile = (possibleFile) => {
   }
   return possibleFile
 }
+
+export const resolveFilenamePrivateKeys = (path, file) =>
+  resolveFilename(
+    file ||
+      // dotenvx default vault
+      resolve(dirname(path), '.env.keys')
+  )

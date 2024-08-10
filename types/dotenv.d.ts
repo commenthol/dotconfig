@@ -6,27 +6,54 @@
  * @property {NodeJS.ProcessEnv|object} [options.processEnv] The process environment object to update. Default is `process.env`.
  */
 /**
+ * @typedef {{
+ *  parsed: Record<string,string|number|boolean>|{}
+ *  privateKeys?: string[]
+ *  tokens?: Token[]
+ *  tokensKeys?: Token[]
+ * }} ConfigResult
+ */
+/**
  * Reads and parses a dotenv file and updates the process environment variables.
  *
  * @param {DotenvConfigOptions} [options] Optional parameters for configuring the dotenv file.
- * @return {object|undefined} An object containing the parsed dotenv file data.
+ * @return {ConfigResult} An object containing the parsed dotenv file data.
  */
-export function config(options?: DotenvConfigOptions | undefined): object | undefined;
+export function config(options?: DotenvConfigOptions | undefined): ConfigResult;
 /**
  * @param {string} path
  * @param {{ encoding?: BufferEncoding }} [options]
- * @returns {Record<string,string>|undefined}
+ * @returns {{env?: Record<string,string>, tokens?: Token[]}}
  */
 export function parseDotenvFile(path: string, options?: {
     encoding?: BufferEncoding;
-} | undefined): Record<string, string> | undefined;
+} | undefined): {
+    env?: Record<string, string>;
+    tokens?: Token[];
+};
+/**
+ * @typedef {{
+ *  line?: string
+ *  key?: string
+ *  value?: string
+ *  quoteChar?: string
+ *  comment?: string
+ * }} Token
+ */
 /**
  * Parses the content and extracts key-value pairs into an object.
  *
  * @param {string} content The content to parse.
- * @return {object} An object containing the extracted key-value pairs.
+ * @return {{
+ *  env: Record<string,string>|{}
+ *  tokens: Token[]
+ * }} An object containing the extracted key-value pairs.
  */
-export function parse(content: string): object;
+export function parse(content: string): {
+    env: Record<string, string> | {};
+    tokens: Token[];
+};
+export const DOTENV_PRIVATE_KEYS_PATH: "DOTENV_PRIVATE_KEYS_PATH";
 export type DotenvConfigOptions = {
     /**
      * The path to the dotenv file. Default is '.env' in the current working directory. May be set via DOTENV_CONFIG_PATH env var.
@@ -44,4 +71,17 @@ export type DotenvConfigOptions = {
      * The process environment object to update. Default is `process.env`.
      */
     processEnv?: NodeJS.ProcessEnv | object;
+};
+export type ConfigResult = {
+    parsed: Record<string, string | number | boolean> | {};
+    privateKeys?: string[];
+    tokens?: Token[];
+    tokensKeys?: Token[];
+};
+export type Token = {
+    line?: string;
+    key?: string;
+    value?: string;
+    quoteChar?: string;
+    comment?: string;
 };

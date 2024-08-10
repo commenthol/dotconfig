@@ -1,9 +1,13 @@
-import { readFileSync } from 'node:fs'
-import { resolve, dirname } from 'node:path'
-import { log, toBoolean, resolveFilename } from './utils.js'
-import { getPrivateKeys, hasPublicKey } from './crypt.js'
+import { readFileSync } from 'fs'
+import {
+  log,
+  toBoolean,
+  resolveFilename,
+  resolveFilenamePrivateKeys
+} from './utils.js'
+import { getPrivateKeys, getFirstPublicKey } from './crypt.js'
 
-const QUOTES = /['"`]/
+export const DOTENV_PRIVATE_KEYS_PATH = 'DOTENV_PRIVATE_KEYS_PATH'
 
 /**
  * @typedef {object} DotenvConfigOptions
@@ -14,10 +18,19 @@ const QUOTES = /['"`]/
  */
 
 /**
+ * @typedef {{
+ *  parsed: Record<string,string|number|boolean>|{}
+ *  privateKeys?: string[]
+ *  tokens?: Token[]
+ *  tokensKeys?: Token[]
+ * }} ConfigResult
+ */
+
+/**
  * Reads and parses a dotenv file and updates the process environment variables.
  *
  * @param {DotenvConfigOptions} [options] Optional parameters for configuring the dotenv file.
- * @return {object|undefined} An object containing the parsed dotenv file data.
+ * @return {ConfigResult} An object containing the parsed dotenv file data.
  */
 export function config(options = {}) {
   let { path: _path, encoding, override, processEnv } = options || {}
@@ -33,7 +46,7 @@ export function config(options = {}) {
   processEnv =
     processEnv && typeof processEnv === 'object' ? processEnv : process.env
 
-  const parsed = parseDotenvFile(path, { encoding }) || {}
+  const { env: parsed = {}, tokens } = parseDotenvFile(path, { encoding })
 
   for (const [key, value] of Object.entries(parsed)) {
     if (override || processEnv[key] === undefined) {
@@ -42,31 +55,38 @@ export function config(options = {}) {
   }
 
   let privateKeys
+  let tokensKeys
 
-  if (hasPublicKey(processEnv)) {
-    const privateKeyFilename = resolveFilename(
-      process.env.DOTENV_PRIVATE_KEYS_PATH ||
-        processEnv.DOTENV_PRIVATE_KEYS_PATH ||
-        // dotenvx default vault
-        resolve(dirname(path), '.env.keys')
+  if (getFirstPublicKey(processEnv)) {
+    const privateKeyFilename = resolveFilenamePrivateKeys(
+      path,
+      parsed[DOTENV_PRIVATE_KEYS_PATH] ||
+        process.env[DOTENV_PRIVATE_KEYS_PATH] ||
+        processEnv[DOTENV_PRIVATE_KEYS_PATH]
     )
 
-    Reflect.deleteProperty(process.env, 'DOTENV_PRIVATE_KEYS_PATH')
+    Reflect.deleteProperty(process.env, DOTENV_PRIVATE_KEYS_PATH)
+    Reflect.deleteProperty(processEnv, DOTENV_PRIVATE_KEYS_PATH)
+    Reflect.deleteProperty(parsed, DOTENV_PRIVATE_KEYS_PATH)
 
-    const parsedKeyEnvVars = parseDotenvFile(privateKeyFilename, { encoding })
+    const { env: parsedKeyEnvVars, tokens } = parseDotenvFile(
+      privateKeyFilename,
+      { encoding: 'utf-8' }
+    )
     if (!parsedKeyEnvVars) {
       throw new Error('No private keys for DOTENV_PUBLIC_KEY* found')
     }
+    tokensKeys = tokens
     privateKeys = getPrivateKeys(parsedKeyEnvVars)
   }
 
-  return { parsed, privateKeys }
+  return { parsed, privateKeys, tokens, tokensKeys }
 }
 
 /**
  * @param {string} path
  * @param {{ encoding?: BufferEncoding }} [options]
- * @returns {Record<string,string>|undefined}
+ * @returns {{env?: Record<string,string>, tokens?: Token[]}}
  */
 export function parseDotenvFile(path, options) {
   const { encoding } = options || {}
@@ -76,55 +96,122 @@ export function parseDotenvFile(path, options) {
   } catch (/** @type {Error|any} */ err) {
     log(`ERROR: Failed to load ${path} with ${err.message}`)
   }
+  return {}
 }
+
+/**
+ * @typedef {{
+ *  line?: string
+ *  key?: string
+ *  value?: string
+ *  quoteChar?: string
+ *  comment?: string
+ * }} Token
+ */
 
 /**
  * Parses the content and extracts key-value pairs into an object.
  *
  * @param {string} content The content to parse.
- * @return {object} An object containing the extracted key-value pairs.
+ * @return {{
+ *  env: Record<string,string>|{}
+ *  tokens: Token[]
+ * }} An object containing the extracted key-value pairs.
  */
 export function parse(content) {
   const env = {}
 
-  let key
-  let value = ''
-  let multiLine
+  let cache = {}
+  const tokens = []
 
   const lines = content.split('\n')
   for (const line of lines) {
     const trimmedLine = line.replace(/^export\s+/, '').trim()
+    const token = { line }
 
-    if (!multiLine && (!trimmedLine || trimmedLine.startsWith('#'))) {
+    if (!cache.lines && (!trimmedLine || trimmedLine.startsWith('#'))) {
+      tokens.push(token)
       continue
     }
 
-    if (!multiLine && trimmedLine.includes('=')) {
+    if (!cache.lines && trimmedLine.includes('=')) {
       const [_key, _value] = trimmedLine.split('=')
-      key = _key.trim()
-      value = _value.trim()
-      env[key] = replaceQuotes(value)
-      const first = value[0]
-      if (QUOTES.test(first) && !QUOTES.test(value[env[key].length + 1])) {
-        multiLine = first
+      const key = (cache.key = _key.trim())
+      const output = replaceQuotes(_value.trim())
+      const value = output.value
+      const comment = output.comment
+      const quoteChar = output.quoteChar
+      env[key] = value
+
+      if (output.isMultiline) {
+        cache = { lines: [line], key, value, quoteChar, comment }
+      } else {
+        tokens.push({ line, key, value, comment, quoteChar })
+        // @ts-expect-error
+        cache = {}
       }
     } else {
-      value += '\n' + line
-      env[key] = replaceQuotes(value)
-      if (value[env[key].length + 1] === multiLine) {
-        multiLine = undefined
-        key = ''
-        value = ''
+      cache.lines.push(line)
+      const output = replaceQuotes(line, cache.quoteChar)
+      cache.value += '\n' + output.value
+      env[cache.key] = cache.value
+      cache.comment = output.comment
+      cache.quoteChar = output.quoteChar
+
+      if (!output.isMultiline) {
+        const { lines, ...other } = cache
+        tokens.push({ line: lines.join('\n'), ...other })
+        // @ts-expect-error
+        cache = {}
       }
     }
   }
+  if (cache.key) {
+    const { lines, ...other } = cache
+    tokens.push({ line: lines.join('\n'), ...other })
+  }
 
-  return env
+  return { env, tokens }
 }
 
-/**
- * @param {string} value
- * @returns {string}
- */
-const replaceQuotes = (value) =>
-  value.replace(/^(['"`])([^]*?)\1(?:\s*#[^]*|)$/m, '$2')
+const QUOTES = /['"`]/
+
+const firstCharQuote = (value = '') =>
+  QUOTES.test(value[0]) ? value[0] : undefined
+
+const replaceQuotes = (input, quote) => {
+  const quoteChar = quote || firstCharQuote(input)
+  if (!quoteChar) {
+    return { value: input }
+  }
+  let value = ''
+  let comment = ''
+  const flags = { i: -1 }
+
+  const chars = [...input]
+  for (let codePoint of chars) {
+    flags.i++
+    const c = String.fromCodePoint(codePoint.codePointAt(0))
+    if (c === '\\') {
+      flags.esc = true
+      continue
+    }
+    if (c === quoteChar) {
+      if (flags.esc) {
+        value += c
+      } else if (flags.i !== 0) {
+        flags.end = true
+      }
+      flags.esc = false
+      continue
+    }
+    if (!flags.end) {
+      value += c
+    } else {
+      comment += c
+    }
+    flags.esc = false
+  }
+  const isMultiline = !flags.end
+  return { value, comment, quoteChar, isMultiline }
+}

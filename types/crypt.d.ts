@@ -13,13 +13,13 @@ export function encryptValue(value: any, publicKey: string): string;
  */
 export function decryptValue(envVar: string, value: string, privateKeys?: string[] | undefined, throwOnDecryptionError?: boolean | undefined): string;
 /**
- * @param {string} existingPrivateKey
+ * @param {string} [existingPrivateKey]
  * @returns {{
  *  publicKey: string
  *  privateKey: string
  * }}
  */
-export function keyPair(existingPrivateKey: string): {
+export function keyPair(existingPrivateKey?: string | undefined): {
     publicKey: string;
     privateKey: string;
 };
@@ -30,8 +30,12 @@ export function keyPair(existingPrivateKey: string): {
  */
 export function getPrivateKeys(processEnv: NodeJS.ProcessEnv, doDelete?: boolean | undefined): string[];
 /**
- * @param {Record<string,string>} processEnv
- * @returns {boolean}
+ * @param {Record<string,string|boolean|number>} processEnv
+ * @returns {{key: string, value: string}|undefined}
  */
-export function hasPublicKey(processEnv: Record<string, string>): boolean;
+export function getFirstPublicKey(processEnv: Record<string, string | boolean | number>): {
+    key: string;
+    value: string;
+} | undefined;
 export const DOTENV_PUBLIC_KEY: "DOTENV_PUBLIC_KEY";
+export const PREFIX: "encrypted:";

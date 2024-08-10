@@ -12,6 +12,9 @@ Comes packaged with a dotenv file loader.
 Works with [dotenvx][] encrypted .env files and its .env.keys file. Uses same
 [secp256k1](https://en.bitcoin.it/wiki/Secp256k1) encryption.
 
+Comes bundled with a helper CLI to encryt and decrypt environment variables more
+easily. See [Encryption](#encryption)
+
 # Install
 
 Add to your project:
@@ -120,16 +123,25 @@ const config = {
 }
 ```
 
+<a id="encryption"> </a>
+
 # Encryption
 
-Uses [dotenvx](https://dotenvx.com/docs/env-keys-file#encryption) for handling
-value encryption. Install globally or in your project.
+Can work with [dotenvx](https://dotenvx.com/docs/env-keys-file#encryption)
+encrypted .env files for handling value encryption.
 
-```
-npm install -g @dotenvx/dotenvx
+Comes bundled with own CLI to handle 
+
+```sh
+# get some help
+npx dotconfig --help
+# create a new .env file with encrypted value "foo"
+npx dotconfig encrypt foo bar
+# lookup decrypted value on stdout
+npx dotconfig decrypt foo --stdout
 ```
 
-NOTE: Never commit your `.env.keys` file. Keep it in a save place.
+ℹ️ **NOTE:** Never commit your `.env.keys` file. Keep it in a save place.
 
 To use a different `.env.keys` file you may use DOTENV_PRIVATE_KEYS_PATH
 env-var.

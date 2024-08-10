@@ -5,6 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Program",
+      "program": "${workspaceFolder}/bin/dotconfig.js",
+      "request": "launch",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "type": "node",
+      // "args": ["decrypt", "--stdout", "-f", ".env"]
+      "args": ["-f", ".env.x", "encrypt", "hi", "there"]
+    },
+    {
       "args": [
         "-u",
         "bdd",

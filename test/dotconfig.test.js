@@ -1,6 +1,13 @@
-import assert from 'node:assert/strict'
+import assert from 'assert/strict'
 import { dotconfig, getConfig } from '../src/index.js'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath } from 'url'
+
+const fixturesFile = {
+  envTest: fileURLToPath(new URL('./fixtures/.env-test', import.meta.url)),
+  envNotThere: fileURLToPath(
+    new URL('./fixtures/.env-not-there', import.meta.url)
+  )
+}
 
 describe('dotconfig', function () {
   describe('getConfig', function () {
@@ -542,9 +549,7 @@ describe('dotconfig', function () {
       Reflect.deleteProperty(process.env, 'DOTENV_CONFIG_PATH')
     })
     it('shall load env file and return config', function () {
-      process.env.DOTENV_CONFIG_PATH = fileURLToPath(
-        new URL('./.env-test', import.meta.url)
-      )
+      process.env.DOTENV_CONFIG_PATH = fixturesFile.envTest
 
       const config = dotconfig(
         {
@@ -591,9 +596,7 @@ describe('dotconfig', function () {
     })
 
     it('shall not load undefined file', function () {
-      process.env.DOTENV_CONFIG_PATH = fileURLToPath(
-        new URL('./.env-not-there', import.meta.url)
-      )
+      process.env.DOTENV_CONFIG_PATH = fixturesFile.envNotThere
 
       const config = dotconfig(
         {

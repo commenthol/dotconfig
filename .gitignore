@@ -2,8 +2,12 @@ node_modules/
 coverage/
 lib/
 tmp/
+test/fixtures/cli
+
 *.tgz
 *.log
+
+.DS_Store
 
 package-lock.json
 yarn.lock
