@@ -1,3 +1,13 @@
+# 1.5.0 (2024-08-10)
+
+### feat:
+
+- cli to encrypt and decrypt values (#47059e7)
+
+### docs:
+
+- document throwOnDecryptionError parameter option (#870d803)
+
 # 1.4.0 (2024-08-04)
 
 ### feat:
