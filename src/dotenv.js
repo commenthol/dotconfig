@@ -24,6 +24,10 @@ export const DOTENV_PRIVATE_KEYS_PATH = 'DOTENV_PRIVATE_KEYS_PATH'
  *  tokens?: Token[]
  *  tokensKeys?: Token[]
  * }} ConfigResult
+ * - parsed: key-value pairs of parsed .env file
+ * - privateKeys: list of private keys found in keys file
+ * - tokens: (used by cli) tokenized lines of .env file
+ * - tokensKeys: (used by cli) tokenized lines of .env.keys file
  */
 
 /**
@@ -107,6 +111,11 @@ export function parseDotenvFile(path, options) {
  *  quoteChar?: string
  *  comment?: string
  * }} Token
+ * - line: original or concated line(s)
+ * - key: found key on that line (or multiline)
+ * - value: value of key
+ * - quoteChar: quote character of value
+ * - comment: comment on same line as key-value
  */
 
 /**

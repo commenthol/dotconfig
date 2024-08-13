@@ -12,6 +12,10 @@
  *  tokens?: Token[]
  *  tokensKeys?: Token[]
  * }} ConfigResult
+ * - parsed: key-value pairs of parsed .env file
+ * - privateKeys: list of private keys found in keys file
+ * - tokens: (used by cli) tokenized lines of .env file
+ * - tokensKeys: (used by cli) tokenized lines of .env.keys file
  */
 /**
  * Reads and parses a dotenv file and updates the process environment variables.
@@ -39,6 +43,11 @@ export function parseDotenvFile(path: string, options?: {
  *  quoteChar?: string
  *  comment?: string
  * }} Token
+ * - line: original or concated line(s)
+ * - key: found key on that line (or multiline)
+ * - value: value of key
+ * - quoteChar: quote character of value
+ * - comment: comment on same line as key-value
  */
 /**
  * Parses the content and extracts key-value pairs into an object.
@@ -72,12 +81,25 @@ export type DotenvConfigOptions = {
      */
     processEnv?: NodeJS.ProcessEnv | object;
 };
+/**
+ * - parsed: key-value pairs of parsed .env file
+ * - privateKeys: list of private keys found in keys file
+ * - tokens: (used by cli) tokenized lines of .env file
+ * - tokensKeys: (used by cli) tokenized lines of .env.keys file
+ */
 export type ConfigResult = {
     parsed: Record<string, string | number | boolean> | {};
     privateKeys?: string[];
     tokens?: Token[];
     tokensKeys?: Token[];
 };
+/**
+ * - line: original or concated line(s)
+ * - key: found key on that line (or multiline)
+ * - value: value of key
+ * - quoteChar: quote character of value
+ * - comment: comment on same line as key-value
+ */
 export type Token = {
     line?: string;
     key?: string;

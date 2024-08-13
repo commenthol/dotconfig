@@ -130,9 +130,11 @@ const config = {
 Can work with [dotenvx](https://dotenvx.com/docs/env-keys-file#encryption)
 encrypted .env files for handling value encryption.
 
-Comes bundled with own CLI to handle 
+Comes bundled with own CLI to handle encryption of values in .env files:
 
 ```sh
+# add package to your project first
+npm i @commenthol/dotconfig
 # get some help
 npx dotconfig --help
 # create a new .env file with encrypted value "foo"
@@ -239,7 +241,7 @@ function config (
    * see types above at dotconfig.
    */
   options?: DotenvConfigOptions
-): Record<string, any> | {};
+): ConfigResult;
 
 type DotenvConfigOptions = {
     /**
@@ -258,6 +260,11 @@ type DotenvConfigOptions = {
      * The process environment object to update. Default is `process.env`.
      */
     processEnv?: NodeJS.ProcessEnv | object;
+};
+
+export type ConfigResult = {
+    /** parsed .env file */
+    parsed: Record<string, string | number | boolean> | {};
 };
 ```
 
