@@ -28,7 +28,6 @@ const testCase = async (filename) => {
 describe('dotenv.parse()', function () {
   it('issue backslash without quote', function () {
     const { tokens } = parse('A="a\\nb"\n')
-    // console.log(tokens)
     assert.deepEqual(tokens, [
       {
         line: 'A="a\\nb"',
@@ -43,7 +42,6 @@ describe('dotenv.parse()', function () {
 
   it('issue multiline', function () {
     const { tokens } = parse('A="a\nb\n"\n')
-    // console.log(tokens)
     assert.deepEqual(tokens, [
       {
         line: 'A="a\nb\n"',
@@ -58,7 +56,6 @@ describe('dotenv.parse()', function () {
 
   it('multiline export', function () {
     const { tokens } = parse('export A="a\nexport b\n"\n')
-    // console.log(tokens)
     assert.deepEqual(tokens, [
       {
         line: 'export A="a\nexport b\n"',
@@ -68,6 +65,34 @@ describe('dotenv.parse()', function () {
         quoteChar: '"'
       },
       { line: '' }
+    ])
+  })
+
+  it('issue key value splitting', function () {
+    const { tokens } = parse('export A="a=b=c"\n')
+    assert.deepEqual(tokens, [
+      {
+        line: 'export A="a=b=c"',
+        key: 'A',
+        value: 'a=b=c',
+        comment: '',
+        quoteChar: '"'
+      },
+      { line: '' }
+    ])
+  })
+
+  it('value with unterminated quote', function () {
+    const { tokens } = parse('A="a=\n\nB=b')
+    console.log(tokens)
+    assert.deepEqual(tokens, [
+      {
+        line: 'A="a=\n\nB=b',
+        key: 'A',
+        value: 'a=\n\nB=b',
+        quoteChar: '"',
+        comment: ''
+      }
     ])
   })
 

@@ -146,8 +146,9 @@ export function parse(content) {
     }
 
     if (!cache.lines && trimmedLine.includes('=')) {
-      const [_key, _value] = trimmedLine.split('=')
+      const [_key] = trimmedLine.split('=')
       const key = (cache.key = _key.trim())
+      const _value = trimmedLine.slice(key.length + 1)
       const output = replaceQuotes(_value.trim())
       const value = output.value
       const comment = output.comment
@@ -161,6 +162,7 @@ export function parse(content) {
         // @ts-expect-error
         cache = {}
       }
+      /* c8 ignore next 3 */
     } else if (!cache.lines) {
       log(`ERROR: Parsing line %s`, i)
     } else {

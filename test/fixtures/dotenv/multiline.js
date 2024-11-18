@@ -7,5 +7,7 @@ export const expected = [
     quoteChar: '"',
     comment: ''
   },
-  { line: '' }
+  {
+    line: ''
+  }
 ]
