@@ -134,7 +134,9 @@ export function parse(content) {
   const tokens = []
 
   const lines = content.split('\n')
+  let i = 0
   for (const line of lines) {
+    i++
     const trimmedLine = line.replace(/^export\s+/, '').trim()
     const token = { line }
 
@@ -159,6 +161,8 @@ export function parse(content) {
         // @ts-expect-error
         cache = {}
       }
+    } else if (!cache.lines) {
+      log(`ERROR: Parsing line %s`, i)
     } else {
       cache.lines.push(line)
       const output = replaceQuotes(line, cache.quoteChar)
@@ -220,6 +224,9 @@ const replaceQuotes = (input, quote) => {
     }
     flags.esc = false
   }
-  const isMultiline = !flags.end
+  let isMultiline = !flags.end
+  if (isMultiline && !value && input[0] === quoteChar) {
+    isMultiline = false
+  }
   return { value, comment, quoteChar, isMultiline }
 }
