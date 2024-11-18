@@ -5,20 +5,15 @@
     "checkJs": true,
     "declaration": true,
     "declarationDir": "types",
-    "emitDeclarationOnly": true, 
+    "emitDeclarationOnly": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "noEmitOnError": false,
     "noImplicitAny": false,
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext",
+    "target": "esnext"
   },
-  "include": [
-    "src",
-  ],
-  "exclude": [
-    "node_modules",
-    "test"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules", "test"]
 }

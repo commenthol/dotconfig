@@ -198,10 +198,9 @@ const replaceQuotes = (input, quote) => {
   const flags = { i: -1 }
 
   const chars = [...input]
-  for (let codePoint of chars) {
+  for (let c of chars) {
     flags.i++
-    const c = String.fromCodePoint(codePoint.codePointAt(0))
-    if (c === '\\') {
+    if (c === '\\' && chars[flags.i + 1] === quoteChar) {
       flags.esc = true
       continue
     }

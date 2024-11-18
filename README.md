@@ -47,12 +47,12 @@ export const config = dotconfig({
   },
   isProd: false,
   names: [], // arrays must be defined!
-  user: { 
+  user: {
     __group: true // groups env vars into object
                   // Here env-var MUST have min 3 parts with min 2 dashes!
   },
   // if loading from file default config var must contain at least `file://`
-  loadFile: 'file://',
+  loadFile: 'file://'
 })
 ```
 
@@ -91,7 +91,7 @@ results in `config` being exported as
 ```js
 const config = {
   http: {
-    proxy: 'my-proxy:1234',
+    proxy: 'my-proxy:1234'
   },
   https: {
     key: '-----BEGIN PRIVATE KEY-----\nMIIE...\n-----END PRIVATE KEY-----',
@@ -101,7 +101,7 @@ const config = {
   sso: {
     serverUrl: 'https://other.sso/path',
     clientId: 'myClientId',
-    clientSecret: 'ƚɘɿƆɘƧ',
+    clientSecret: 'ƚɘɿƆɘƧ'
   },
   names: ['Alice', 'Bob', 'Charlie'],
   user: {
@@ -152,9 +152,9 @@ Decrypted values only appear in the config object but never in `process.env`.
 Private keys are also only used internally for decryption and are deleted if
 they appear in `process.env`.
 
-# API 
+# API
 
-## dotconfig 
+## dotconfig
 
 dotconfig calls `dotenv.config()` first before passing the parsed `process.env`
 variables through `getConfig()`.
@@ -211,13 +211,13 @@ type DotConfigOptions = {
 
 </details>
 
-## dotenv 
+## dotenv
 
-dotenv comes with two methods `parse()` and `config()`. 
+dotenv comes with two methods `parse()` and `config()`.
 
 `dotenv.config()` returns the parsed `.env` file (if found).
 
-*Usage*
+_Usage_
 
 ```js
 import { dotenv } from '@commenthol/dotconfig'
@@ -226,7 +226,7 @@ import { dotenv } from '@commenthol/dotconfig'
 dotenv.config()
 
 // loads `.env-local` relative to file
-dotenv.config({ 
+dotenv.config({
   path: new URL('./.env-local', import.meta.url)
 })
 ```
@@ -235,37 +235,37 @@ dotenv.config({
 <summary><i>Types</i></summary>
 
 ```ts
-function config (
+function config(
   /**
    * optional configuration options.
    * see types above at dotconfig.
    */
   options?: DotenvConfigOptions
-): ConfigResult;
+): ConfigResult
 
 type DotenvConfigOptions = {
-    /**
-     * The path to the dotenv file. Default is '.env' in the current working directory. May be set via DOTENV_CONFIG_PATH env var.
-     */
-    path?: string | URL | undefined;
-    /**
-     * The encoding of the dotenv file. May be set via DOTENV_CONFIG_ENCODING env var.
-     */
-    encoding?: BufferEncoding | undefined;
-    /**
-     * Whether to override existing process environment variables. Default is false. May be set by DOTENV_CONFIG_OVERRIDE env var.
-     */
-    override?: boolean | undefined;
-    /**
-     * The process environment object to update. Default is `process.env`.
-     */
-    processEnv?: NodeJS.ProcessEnv | object;
-};
+  /**
+   * The path to the dotenv file. Default is '.env' in the current working directory. May be set via DOTENV_CONFIG_PATH env var.
+   */
+  path?: string | URL | undefined
+  /**
+   * The encoding of the dotenv file. May be set via DOTENV_CONFIG_ENCODING env var.
+   */
+  encoding?: BufferEncoding | undefined
+  /**
+   * Whether to override existing process environment variables. Default is false. May be set by DOTENV_CONFIG_OVERRIDE env var.
+   */
+  override?: boolean | undefined
+  /**
+   * The process environment object to update. Default is `process.env`.
+   */
+  processEnv?: NodeJS.ProcessEnv | object
+}
 
 export type ConfigResult = {
-    /** parsed .env file */
-    parsed: Record<string, string | number | boolean> | {};
-};
+  /** parsed .env file */
+  parsed: Record<string, string | number | boolean> | {}
+}
 ```
 
 </details>
@@ -275,7 +275,7 @@ export type ConfigResult = {
 Applies the lower camel-cased `process.env` variables onto the default
 configuration.
 
-*Usage*
+_Usage_
 
 ```js
 import { getConfig } from '@commenthol/dotconfig'
@@ -297,10 +297,8 @@ const config = getConfig({
 
 MIT licensed
 
-
 [npm-badge]: https://badgen.net/npm/v/@commenthol/dotconfig
 [npm]: https://www.npmjs.com/package/@commenthol/dotconfig
 [npm-dm]: https://badgen.net/npm/dm/@commenthol/dotconfig
 [types-badge]: https://badgen.net/npm/types/@commenthol/dotconfig
-
 [dotenvx]: https://github.com/dotenvx/dotenvx

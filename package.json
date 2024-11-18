@@ -34,10 +34,11 @@
     "types"
   ],
   "scripts": {
-    "all": "npm-run-all clean lint c8 types",
+    "all": "npm-run-all clean pretty lint c8 types",
     "c8": "c8 -r text -r html npm test",
     "changelog": "conv-changelog -o -t groups",
     "clean": "rimraf coverage types",
+    "pretty": "prettier -w '**/*.js'",
     "lint": "eslint",
     "test": "DEBUG=@commenthol/dotconfig mocha",
     "types": "tsc"
@@ -59,6 +60,7 @@
     "globals": "^15.12.0",
     "mocha": "^11.0.0",
     "npm-run-all2": "^7.0.1",
+    "prettier": "^3.3.3",
     "rimraf": "^6.0.1",
     "sinon": "^19.0.2",
     "typescript": "^5.6.3"

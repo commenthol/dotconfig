@@ -1,107 +1,58 @@
 import assert from 'node:assert/strict'
+import fs from 'fs'
 import { parse } from '../src/dotenv.js'
 
-const content =
-  '# Comment\n' +
-  'export KEY=value\n' +
-  '\n' +
-  'KEY_QUOTES_DOUBLE="value in double quotes"\n' +
-  "KEY_QUOTES_SINGLE='value in single quotes'\n" +
-  'KEY_BACKTICKS=`value in backticks`\n' +
-  '\n' +
-  'KEY_QUOTES_DOUBLE_COMMENT="value in \'double\' quotes `and` a line comment" # with a comment\n' +
-  'KEY_QUOTES_SINGLE_COMMENT=\'value in "single" quotes `and` a line comment\' # with a comment\n' +
-  'KEY_BACKTICKS_COMMENT=`value in \'backticks\' "and" a line comment` # with a comment\n' +
-  '\n' +
-  'KEY_QUOTES_DOUBLE_MULTILINE="value\n' +
-  '  ov\\"er \\"\n' +
-  "  'some' # this is not a comment\n" +
-  '  lines" # but this is a comment \n' +
-  "KEY_QUOTES_SINGLE_MULTILINE='value\n" +
-  "  ov\\'er \\'\n" +
-  '  "some" # this is not a comment\n' +
-  "  lines' # but this is a comment \n" +
-  'KEY_BACKTICKS_MULTILINE=`value\n' +
-  '  ov\\`er \\`\n' +
-  '  "some" # this is not a comment\n' +
-  '  lines` # but this is a comment\n'
+const load = async (filename) => {
+  const content = fs.readFileSync(new URL(filename, import.meta.url), 'utf-8')
+  const { expected } = await import(filename + '.js')
+  return { content, expected }
+}
 
-const expected = [
-  { line: '# Comment' },
-  { line: 'export KEY=value', key: 'KEY', value: 'value' },
-  { line: '' },
-  {
-    line: 'KEY_QUOTES_DOUBLE="value in double quotes"',
-    key: 'KEY_QUOTES_DOUBLE',
-    value: 'value in double quotes',
-    comment: '',
-    quoteChar: '"'
-  },
-  {
-    line: "KEY_QUOTES_SINGLE='value in single quotes'",
-    key: 'KEY_QUOTES_SINGLE',
-    value: 'value in single quotes',
-    comment: '',
-    quoteChar: "'"
-  },
-  {
-    line: 'KEY_BACKTICKS=`value in backticks`',
-    key: 'KEY_BACKTICKS',
-    value: 'value in backticks',
-    comment: '',
-    quoteChar: '`'
-  },
-  { line: '' },
-  {
-    line: 'KEY_QUOTES_DOUBLE_COMMENT="value in \'double\' quotes `and` a line comment" # with a comment',
-    key: 'KEY_QUOTES_DOUBLE_COMMENT',
-    value: "value in 'double' quotes `and` a line comment",
-    comment: ' # with a comment',
-    quoteChar: '"'
-  },
-  {
-    line: 'KEY_QUOTES_SINGLE_COMMENT=\'value in "single" quotes `and` a line comment\' # with a comment',
-    key: 'KEY_QUOTES_SINGLE_COMMENT',
-    value: 'value in "single" quotes `and` a line comment',
-    comment: ' # with a comment',
-    quoteChar: "'"
-  },
-  {
-    line: 'KEY_BACKTICKS_COMMENT=`value in \'backticks\' "and" a line comment` # with a comment',
-    key: 'KEY_BACKTICKS_COMMENT',
-    value: 'value in \'backticks\' "and" a line comment',
-    comment: ' # with a comment',
-    quoteChar: '`'
-  },
-  { line: '' },
-  {
-    line: 'KEY_QUOTES_DOUBLE_MULTILINE="value\n  ov\\"er \\"\n  \'some\' # this is not a comment\n  lines" # but this is a comment ',
-    key: 'KEY_QUOTES_DOUBLE_MULTILINE',
-    value: 'value\n  ov"er "\n  \'some\' # this is not a comment\n  lines',
-    comment: ' # but this is a comment ',
-    quoteChar: '"'
-  },
-  {
-    line: "KEY_QUOTES_SINGLE_MULTILINE='value\n  ov\\'er \\'\n  \"some\" # this is not a comment\n  lines' # but this is a comment ",
-    key: 'KEY_QUOTES_SINGLE_MULTILINE',
-    value: 'value\n  ov\'er \'\n  "some" # this is not a comment\n  lines',
-    comment: ' # but this is a comment ',
-    quoteChar: "'"
-  },
-  {
-    line: 'KEY_BACKTICKS_MULTILINE=`value\n  ov\\`er \\`\n  "some" # this is not a comment\n  lines` # but this is a comment',
-    key: 'KEY_BACKTICKS_MULTILINE',
-    value: 'value\n  ov`er `\n  "some" # this is not a comment\n  lines',
-    comment: ' # but this is a comment',
-    quoteChar: '`'
-  },
-  { line: '' }
-]
+const writeFixture = (filename, actual) => {
+  if (process.env.WRITE_FIXTURES === 'true') {
+    fs.writeFileSync(
+      new URL(filename + '.js', import.meta.url),
+      'export const expected = ' + JSON.stringify(actual, null, 2),
+      'utf-8'
+    )
+  }
+}
+
+const testCase = async (filename) => {
+  const { content, expected } = await load(filename)
+  const { tokens } = parse(content)
+  writeFixture(filename, tokens)
+  assert.deepEqual(JSON.parse(JSON.stringify(tokens)), expected)
+}
 
 describe('dotenv.parse()', function () {
-  it('shall parse into tokens', function () {
-    const { tokens } = parse(content)
-    // console.debug(JSON.stringify(tokens))
-    assert.deepEqual(JSON.parse(JSON.stringify(tokens)), expected)
+  it('issue backslash without quote', function () {
+    const { tokens } = parse('A="a\\nb"\n')
+    // console.log(tokens)
+    assert.deepEqual(tokens, [
+      {
+        line: 'A="a\\nb"',
+        key: 'A',
+        value: 'a\\nb',
+        comment: '',
+        quoteChar: '"'
+      },
+      { line: '' }
+    ])
+  })
+
+  it('shall parse into tokens', async function () {
+    const filename = './fixtures/dotenv/env'
+    await testCase(filename)
+  })
+
+  it('shall parse multiline', async function () {
+    const filename = './fixtures/dotenv/multiline'
+    await testCase(filename)
+  })
+
+  it('shall parse large value', async function () {
+    const filename = './fixtures/dotenv/large'
+    await testCase(filename)
   })
 })
