@@ -1,3 +1,9 @@
+# 1.5.2 (2024-11-18)
+
+### fix:
+
+- issue with multiline parsing (#49d97f6)
+
 # 1.5.1 (2024-11-18)
 
 ### fix:
