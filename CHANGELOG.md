@@ -1,3 +1,17 @@
+# 1.5.1 (2024-11-18)
+
+### fix:
+
+- issue backslash but no quote character (#e3c85d4)
+
+### docs:
+
+- fix README and document type fields in dotenv.js (#231bd13)
+
+### chore:
+
+- bump dependencies (#612fc1c)
+
 # 1.5.0 (2024-08-10)
 
 ### feat:
