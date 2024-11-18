@@ -56,6 +56,21 @@ describe('dotenv.parse()', function () {
     ])
   })
 
+  it('multiline export', function () {
+    const { tokens } = parse('export A="a\nexport b\n"\n')
+    // console.log(tokens)
+    assert.deepEqual(tokens, [
+      {
+        line: 'export A="a\nexport b\n"',
+        key: 'A',
+        value: 'a\nexport b\n',
+        comment: '',
+        quoteChar: '"'
+      },
+      { line: '' }
+    ])
+  })
+
   it('shall parse into tokens', async function () {
     const filename = './fixtures/dotenv/env'
     await testCase(filename)
