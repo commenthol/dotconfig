@@ -1,3 +1,13 @@
+# 1.5.3 (2024-11-21)
+
+### fix:
+
+- issue key value splitting if line contains more than one equal sign (#e41e1b0)
+
+### test:
+
+- multiline with export (#b52d753)
+
 # 1.5.2 (2024-11-18)
 
 ### fix:
